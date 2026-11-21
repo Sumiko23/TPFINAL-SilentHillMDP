@@ -2,6 +2,7 @@ package ClasesPOJO;
 
 import Excepciones.UsuarioDuplicadoException;
 
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -110,9 +111,7 @@ public abstract class Usuario {
                     try {
                         for (Jugador j : listaJugadores) {
                             if (j.getNombre().equalsIgnoreCase(nombre)) {
-                                throw new UsuarioDuplicadoException(
-                                        "Ya existe un jugador registrado con el nombre '" + nombre + "'."
-                                );
+                                throw new UsuarioDuplicadoException();
                             }
                         }
 
@@ -120,8 +119,8 @@ public abstract class Usuario {
                         listaJugadores.add(nuevoJugador);
 
                         // Cuando conectemos SQL, descomentamos esta línea para guardar el nuevo jugador en la BD:
-                        // jugadorService.crearPartidaNueva(nuevoJugador);
-
+                        // jugadorService.agregar(nuevoJugador);
+                        // Y DESCOMENTAR EL CATCH DE SQL EXCEPTION
                         System.out.println("¡Usuario '" + nombre + "' creado con éxito!");
                         System.out.println("1 - JUGAR");
                         System.out.println("0 - Volver al menú principal");
@@ -135,7 +134,9 @@ public abstract class Usuario {
 
                     } catch (UsuarioDuplicadoException e) {
                         System.out.println("Error: " + e.getMessage());
-                    }
+                    }  /* catch (SQLException e) {
+                        System.out.println("Error de base de datos: " + e.getMessage());
+                    }*/
                 }
                 case "0" -> {
                     return null;
