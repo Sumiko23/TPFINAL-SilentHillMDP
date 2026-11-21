@@ -9,10 +9,13 @@ import Interfaces.IAtacable;
  * POJO principal del jugador. Almacena todo el progreso de la partida en memoria
  * y se persiste en MySQL únicamente al crear partida o guardar/salir ('0').
  */
-public class Jugador extends Usuario implements IAtacable {
+public class Jugador implements IAtacable {
     private static final int SALUD_MAXIMA = 100;
     private static final int DANIO_SIN_ARMA = 10;
 
+    private int id;
+    private String nombre;
+    private boolean activo;
     private int salud;
     private int monstruosMuertos;
     private int itemsObtenidos;
@@ -48,20 +51,23 @@ public class Jugador extends Usuario implements IAtacable {
     private boolean rectorMuerto;
 
     public Jugador(String nombre) {
-        super(0, nombre, true);
+        this.id = 0;
+        this.nombre = nombre;
+        this.activo = true;
         this.salud = SALUD_MAXIMA;
         this.escenaActual = "Departamento";
         this.inventario = new Inventario();
     }
 
     public Jugador(int id, String nombre, boolean activo) {
-        super(id, nombre, activo);
+        this.id = id;
+        this.nombre = nombre;
+        this.activo = activo;
         this.salud = SALUD_MAXIMA;
         this.escenaActual = "Departamento";
         this.inventario = new Inventario();
     }
 
-    @Override
     public void mostrarMenu() {
         System.out.println("=== SESIÓN DE JUGADOR: " + nombre + " ===");
         System.out.println("1 - Continuar partida guardada");
@@ -121,6 +127,31 @@ public class Jugador extends Usuario implements IAtacable {
     }
 
     // Getters y Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
     public int getSalud() { return salud; }
     public void setSalud(int salud) { this.salud = Math.max(0, Math.min(SALUD_MAXIMA, salud)); }
 

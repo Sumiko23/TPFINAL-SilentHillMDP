@@ -1,7 +1,6 @@
 package ClasesControladoras;
 
 import ClasesPOJO.Jugador;
-import ClasesPOJO.Usuario;
 import ClasesService.JugadorService;
 import Excepciones.ContraseniaIncorrectaException;
 import Excepciones.UsuarioDuplicadoException;
@@ -33,7 +32,7 @@ public class MenuPrincipal {
 
 
 
-        public void iniciar() {
+        public void iniciar() throws SQLException {
             // Al conectar SQL:
             // listaJugadores.addAll(jugadorService.listarActivos());
 
@@ -50,7 +49,7 @@ public class MenuPrincipal {
 
                 switch (opcion) {
                     case "1" -> {
-                        Jugador jugadorActivo = Usuario.gestionarAccesoUsuario(scanner, listaJugadores);
+                        Jugador jugadorActivo = gestionarAccesoUsuario();
                         if (jugadorActivo != null) {
                             EscenasController escenasController = new EscenasController(jugadorActivo,scanner);
                             escenasController.iniciarJuego();
