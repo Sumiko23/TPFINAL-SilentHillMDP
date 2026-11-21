@@ -1,5 +1,7 @@
 package ClasesPOJO;
 
+import Excepciones.UsuarioDuplicadoException;
+
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -108,7 +110,7 @@ public abstract class Usuario {
                     try {
                         for (Jugador j : listaJugadores) {
                             if (j.getNombre().equalsIgnoreCase(nombre)) {
-                                throw new Excepciones.UsuarioDuplicadoException(
+                                throw new UsuarioDuplicadoException(
                                         "Ya existe un jugador registrado con el nombre '" + nombre + "'."
                                 );
                             }
@@ -131,7 +133,7 @@ public abstract class Usuario {
                         }
                         return null;
 
-                    } catch (Excepciones.UsuarioDuplicadoException e) {
+                    } catch (UsuarioDuplicadoException e) {
                         System.out.println("Error: " + e.getMessage());
                     }
                 }
