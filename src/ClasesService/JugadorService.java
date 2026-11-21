@@ -128,7 +128,7 @@ public class JugadorService {
         return res.toString();
     }
 
-    private String mostrar(Jugador j) {
+    public String mostrar(Jugador j) {
         return "[" + j.getId() + "] " + j.getNombre()
                 + " | Escena: " + j.getEscenaActual()
                 + " | Salud: " + j.getSalud()

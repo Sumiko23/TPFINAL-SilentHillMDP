@@ -26,7 +26,7 @@ public abstract class Usuario {
         // se imprime un separador limpio para delimitar cada cambio de pantalla.
         System.out.println("\n-----------------------------------------------------------------\n");
     }
-    public abstract void mostrarMenu();
+    public void mostrarMenu(){}
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

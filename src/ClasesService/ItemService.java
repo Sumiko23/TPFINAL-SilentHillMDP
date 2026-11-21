@@ -126,7 +126,7 @@ public class ItemService {
         return res.toString();
     }
 
-    private String mostrar(Item i) {
+    public String mostrar(Item i) {
         return "[" + i.getId() + "] " + i.getNombre()
                 + " | Tipo: " + i.getTipo()
                 + " | Curación: " + i.getEfectoCuracion()
