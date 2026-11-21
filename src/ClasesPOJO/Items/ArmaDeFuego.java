@@ -24,7 +24,7 @@ public class ArmaDeFuego extends Item {
     public boolean disparar() {
         if (balasCargador > 0) {
             balasCargador--;
-            System.out.println("¡BANG! Disparaste la " + getNombre() + ". Balas restantes en cargador: " + balasCargador + "/" + capacidadCargador);
+            System.out.println("Disparaste. Balas restantes en cargador: " + balasCargador + "/" + capacidadCargador);
             if (balasCargador == 0) {
                 if (cajasBalas > 0) {
                     System.out.println("¡Cargador vacío! Tenés " + cajasBalas + " caja(s) de balas disponibles para recargar.");
@@ -47,7 +47,7 @@ public class ArmaDeFuego extends Item {
         if (cajasBalas > 0) {
             cajasBalas--;
             balasCargador = capacidadCargador;
-            System.out.println("Recargaste " + getNombre() + " (" + balasCargador + " balas). Cajas restantes: " + cajasBalas);
+            System.out.println("Recargaste "+ balasCargador + " balas. Cajas restantes: " + cajasBalas);
             return true;
         }
         System.out.println("No tenés cajas de balas disponibles para recargar.");

@@ -38,7 +38,7 @@ public class MenuPrincipal {
                     case "1" -> {
                         Jugador jugadorActivo = Usuario.gestionarAccesoUsuario(scanner, listaJugadores);
                         if (jugadorActivo != null) {
-                            EscenasController escenasController = new EscenasController(jugadorActivo, scanner);
+                            EscenasController escenasController = new EscenasController(jugadorActivo);
                             escenasController.iniciarJuego();
 
                             // Cuando el jugador toca '0' en una escena y vuelve acá, al conectar SQL descomentamos:
