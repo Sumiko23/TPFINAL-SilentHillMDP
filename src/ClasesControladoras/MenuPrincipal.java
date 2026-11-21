@@ -2,8 +2,10 @@ package ClasesControladoras;
 
 import ClasesPOJO.Jugador;
 import ClasesPOJO.Usuario;
+import ClasesService.JugadorService;
 import Excepciones.ContraseniaIncorrectaException;
 
+import java.sql.SQLException;
 import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -17,7 +19,18 @@ public class MenuPrincipal {
         private final Set<Jugador> listaJugadores = new LinkedHashSet<>();
 
         // Cuando conectemos SQL, solo descomentamos esta línea y cargamos la lista desde la BD:
-        // private final JugadorService jugadorService = new JugadorService();
+
+
+        /* private  JugadorService jugadorService ;
+
+         try {
+        jugadorService = new JugadorService();
+       } catch ( SQLException e) {
+        System.out.println("No se pudo conectar con la base de datos: " + e.getMessage());
+
+       }    */
+
+
 
         public void iniciar() {
             // Al conectar SQL:
@@ -38,11 +51,21 @@ public class MenuPrincipal {
                     case "1" -> {
                         Jugador jugadorActivo = Usuario.gestionarAccesoUsuario(scanner, listaJugadores);
                         if (jugadorActivo != null) {
-                            EscenasController escenasController = new EscenasController(jugadorActivo);
+                            EscenasController escenasController = new EscenasController(jugadorActivo,scanner);
                             escenasController.iniciarJuego();
 
-                            // Cuando el jugador toca '0' en una escena y vuelve acá, al conectar SQL descomentamos:
-                            // jugadorService.guardarPartida(jugadorActivo);
+                            /* Cuando el jugador toca '0' en una escena y vuelve acá, al conectar SQL descomentamos:
+
+                            try {
+                                if (jugadorService.guardarPartida(jugadorActivo)) {
+                                    System.out.println("Partida guardada correctamente.");
+                                } else {
+                                    System.out.println("No se encontró el jugador en la base, no se guardó la partida.");
+                                }
+                            } catch (SQLException e) {
+                                System.out.println("No se pudo guardar la partida: " + e.getMessage());
+                            }   */
+
                         }
                     }
                     case "2" -> {
