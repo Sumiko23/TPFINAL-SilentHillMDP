@@ -74,7 +74,7 @@ public class JugadorDAO {
     public List<Jugador> listarBajas() throws SQLException {
         return listarPorEstado(false);
     }
-
+    //lista jugadores de la BD segun su estado(true o false):
     private List<Jugador> listarPorEstado(boolean activo) throws SQLException {
         List<Jugador> jugadores = new ArrayList<>();
         String sql = "SELECT * FROM jugadores WHERE activo = ? ORDER BY id";
@@ -129,7 +129,7 @@ public class JugadorDAO {
         return null;
     }
 
-    // modificar jugador (guardar partida) junto con su inventario
+    // modificar jugador (guardar partida) con su inventario
     public boolean modificar(Jugador jugador) throws SQLException {
         try (Connection con = ConexionBD.conectar()) {
             con.setAutoCommit(false);
