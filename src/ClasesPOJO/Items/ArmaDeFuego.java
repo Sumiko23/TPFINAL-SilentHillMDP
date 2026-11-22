@@ -25,13 +25,6 @@ public class ArmaDeFuego extends Item {
         if (balasCargador > 0) {
             balasCargador--;
             System.out.println("Disparaste. Balas restantes en cargador: " + balasCargador + "/" + capacidadCargador);
-            if (balasCargador == 0) {
-                if (cajasBalas > 0) {
-                    System.out.println("¡Cargador vacío! Tenés " + cajasBalas + " caja(s) de balas disponibles para recargar.");
-                } else {
-                    System.out.println("¡Cargador vacío y no te quedan más cajas de balas disponibles!");
-                }
-            }
             return true;
         } else {
             if (cajasBalas > 0) {
