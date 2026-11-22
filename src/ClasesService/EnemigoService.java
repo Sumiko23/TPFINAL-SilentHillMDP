@@ -2,6 +2,7 @@ package ClasesService;
 
 import ClasesDAO.EnemigoDAO;
 import ClasesPOJO.Enemigos.Enemigo;
+import ClasesPOJO.Enemigos.JefeFinal;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ public EnemigoService() throws SQLException {
 
 
 
-        /** Alta. Devuelve false si ya existe un enemigo con ese nombre o si no se pudo insertar. */
         public boolean agregar(Enemigo aux) throws SQLException {
             if (dao.buscarPorNombre(aux.getNombre()) != null) {
                 return false;
@@ -35,7 +35,6 @@ public EnemigoService() throws SQLException {
             return false;
         }
 
-        /** Baja lógica: queda en la base con activo = false y sale de la lista en memoria. */
         public boolean eliminar(int id) throws SQLException {
             boolean seElimino = dao.eliminar(id);
             if (seElimino) {
@@ -51,7 +50,6 @@ public EnemigoService() throws SQLException {
             return seElimino;
         }
 
-        /** Reactiva un enemigo dado de baja y lo vuelve a cargar en memoria. */
         public boolean reactivar(int id) throws SQLException {
             boolean seReactivo = dao.reactivar(id);
             if (seReactivo) {
@@ -63,7 +61,6 @@ public EnemigoService() throws SQLException {
             return seReactivo;
         }
 
-        /** Modificación. Devuelve false si el nombre nuevo ya lo usa otro enemigo o si no existe el id. */
         public boolean modificar(int id, Enemigo nuevoEnemigo) throws SQLException {
             Enemigo existente = dao.buscarPorNombre(nuevoEnemigo.getNombre());
             if (existente != null && existente.getId() != id) {
@@ -105,30 +102,43 @@ public EnemigoService() throws SQLException {
             return null;
         }
 
-        /** Texto con los enemigos activos (lista en memoria). */
-        public String mostrarListado() {
-            StringBuilder res = new StringBuilder();
-            for (Enemigo aux : lista) {
-                res.append(mostrar(aux));
-            }
-            return res.toString();
-        }
 
-        /** Texto con los enemigos dados de baja (se consultan en la base, no están en memoria). */
-        public String mostrarDadosDeBaja() throws SQLException {
-            StringBuilder res = new StringBuilder();
-            for (Enemigo aux : dao.listarBajas()) {
-                res.append(mostrar(aux));
-            }
-            return res.toString();
-        }
 
-        public String mostrar(Enemigo e) {
-            return "[" + e.getId() + "] " + e.getNombre()
-                    + " | Tipo: " + e.getClass().getSimpleName()
-                    + " | Salud máx: " + e.getSaludMaxima()
-                    + " | Daño: " + e.getDanioAtaque()
-                    + " | Esquivable: " + (e.isEsquivable() ? "sí" : "no") + "\n";
+
+    public String mostrarListado() {
+        if (lista.isEmpty()) {
+            return "No hay enemigos activos.";
         }
+        StringBuilder res = new StringBuilder();
+        for (Enemigo aux : lista) {
+            res.append(mostrar(aux));
+        }
+        return res.toString();
+    }
+
+    public String mostrarDadosDeBaja() throws SQLException {
+        List<Enemigo> bajas = dao.listarBajas();
+        if (bajas.isEmpty()) {
+            return "No hay enemigos dados de baja.";
+        }
+        StringBuilder res = new StringBuilder();
+        for (Enemigo aux : bajas) {
+            res.append(mostrar(aux));
+        }
+        return res.toString();
+    }
+
+
+    public String mostrar(Enemigo e) {
+        String res = "[" + e.getId() + "] " + e.getNombre()
+                + " | Tipo: " + e.getClass().getSimpleName()
+                + " | Salud máx: " + e.getSaludMaxima()
+                + " | Daño: " + e.getDanioAtaque()
+                + " | Esquivable: " + (e.isEsquivable() ? "sí" : "no");
+        if (e instanceof JefeFinal jefe) {
+            res += " | Tiempo límite (ms): " + jefe.getTiempoLimiteMs();
+        }
+        return res + "\n";
+    }
 
 }

@@ -6,6 +6,7 @@ import ClasesPOJO.Escena;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EscenaService {
@@ -109,18 +110,36 @@ public class EscenaService {
 
 
     public String mostrarListado() {
+        if (lista.isEmpty()) {
+            return "No hay escenas activas.";
+        }
         StringBuilder res = new StringBuilder();
         for (Escena aux : lista.values()) {
-            res.append(aux.toString()).append("\n");
+            res.append(mostrar(aux));
         }
         return res.toString();
     }
-    /** Texto con las escenas dadas de baja (se consultan en la base, no están en memoria). */
+
+
     public String mostrarDadosDeBaja() throws SQLException {
+        List<Escena> bajas = dao.listarBajas();
+        if (bajas.isEmpty()) {
+            return "No hay escenas dadas de baja.";
+        }
         StringBuilder res = new StringBuilder();
-        for (Escena aux : dao.listarBajas()) {
-            res.append(aux.toString()).append("\n");
+        for (Escena aux : bajas) {
+            res.append(mostrar(aux));
         }
         return res.toString();
     }
+
+    public String mostrar(Escena e) {
+        return "[" + e.getId() + "] " + e.getNombre()
+                + " | Descripción: " + e.getDescripcion() + "\n";
+    }
+
+
+
+
+
 }
