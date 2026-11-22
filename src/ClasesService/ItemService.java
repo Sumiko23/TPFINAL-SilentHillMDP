@@ -109,7 +109,7 @@ public class ItemService {
 
     public String mostrarListado() {
         if (lista.isEmpty()) {
-            return "La lista de jugadores activos esta vacia .";
+            return "La lista de Items activos esta vacia .";
         }
         StringBuilder res = new StringBuilder();
         for (Item aux : lista) {
@@ -122,7 +122,7 @@ public class ItemService {
     public String mostrarDadosDeBaja() throws SQLException {
         List<Item> bajas = dao.listarBajas();
         if (bajas.isEmpty()) {
-            return "No hay jugadores dados de baja.";
+            return "No hay Items dados de baja.";
         }
 
         StringBuilder res = new StringBuilder();

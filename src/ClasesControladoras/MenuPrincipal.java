@@ -4,9 +4,7 @@ import ClasesPOJO.Jugador;
 import ClasesService.JugadorService;
 import Excepciones.ContraseniaIncorrectaException;
 import Excepciones.UsuarioDuplicadoException;
-
 import java.sql.SQLException;
-import java.util.LinkedHashSet;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -15,20 +13,7 @@ public class MenuPrincipal {
         private final Scanner scanner = new Scanner(System.in);
         private final Administrador admin = new Administrador("utnmdp2026", scanner);
 
-        // Colección Set donde vivirán los jugadores cargados desde MySQL (y en memoria mientras jugamos)
-        private final Set<Jugador> listaJugadores = new LinkedHashSet<>();
 
-        // Cuando conectemos SQL, solo descomentamos esta línea y cargamos la lista desde la BD:
-
-
-        /* private  JugadorService jugadorService ;
-
-         try {
-        jugadorService = new JugadorService();
-       } catch ( SQLException e) {
-        System.out.println("No se pudo conectar con la base de datos: " + e.getMessage());
-
-       }    */
 
     public void iniciar() {
         boolean salir = false;
@@ -52,7 +37,6 @@ public class MenuPrincipal {
                             juegoController.iniciarJuego();
 
 
-                            /* Cuando el jugador toca '0' en una escena y vuelve acá, al conectar SQL descomentamos:
                             try {
                                 JugadorService jugadorService = new JugadorService();
                                 System.out.println(jugadorService.guardarPartida(jugadorActivo)
@@ -61,7 +45,7 @@ public class MenuPrincipal {
                             } catch (SQLException e) {
                                 System.out.println("Error en la base de datos , no se pudo guardar la partida: " + e.getMessage());
                             }
-                            */
+
                         }
 
                 }
@@ -129,9 +113,7 @@ public class MenuPrincipal {
             return null;
         }
 
-        Set<Jugador> partidasGuardadas;
-
-            partidasGuardadas = jugadorService.listarActivos();
+        Set<Jugador> partidasGuardadas=jugadorService.listarActivos();
 
         if (partidasGuardadas.isEmpty()) {
             System.out.println("La lista de partidas guardadas está vacía.");

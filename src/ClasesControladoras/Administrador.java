@@ -151,7 +151,7 @@ public class Administrador {
                     try {
                         System.out.println("1 - Buscar por ID");
                         System.out.println("2 - Buscar por nombre");
-                        System.out.print("Elegí: ");
+                        System.out.print("Ingrese una opcion : ");
                         String opcion = scanner.nextLine().trim();
                         Jugador aux;
                         if (opcion.equals("1")) {
