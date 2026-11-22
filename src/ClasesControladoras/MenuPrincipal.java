@@ -13,7 +13,7 @@ import java.util.Set;
 public class MenuPrincipal {
 
         private final Scanner scanner = new Scanner(System.in);
-        private final Administrador admin = new Administrador("utnmdp2026");
+        private final Administrador admin = new Administrador("utnmdp2026", scanner);
 
         // Colección Set donde vivirán los jugadores cargados desde MySQL (y en memoria mientras jugamos)
         private final Set<Jugador> listaJugadores = new LinkedHashSet<>();
@@ -30,73 +30,63 @@ public class MenuPrincipal {
 
        }    */
 
+    public void iniciar() {
+        boolean salir = false;
 
+        while (!salir) {
+            mostrarLogo();
+            System.out.println("\n1 - Entrar como usuario");
+            System.out.println("2 - Entrar como administrador");
+            System.out.println("0 - Salir");
+            System.out.print("Elegí una opción: ");
+            String opcion = scanner.nextLine().trim();
+            separarPantalla();
 
-        public void iniciar() throws SQLException {
-            // Al conectar SQL:
-            // listaJugadores.addAll(jugadorService.listarActivos());
+            switch (opcion) {
+                case "1" -> {
 
-            boolean salir = false;
-
-            while (!salir) {
-                mostrarLogo();
-                System.out.println("\n1 - Entrar como usuario");
-                System.out.println("2 - Entrar como administrador");
-                System.out.println("0 - Salir");
-                System.out.print("Elegí una opción: ");
-                String opcion = scanner.nextLine().trim();
-                separarPantalla();
-
-                switch (opcion) {
-                    case "1" -> {
                         Jugador jugadorActivo = gestionarAccesoUsuario();
                         if (jugadorActivo != null) {
-                            EscenasController escenasController = new EscenasController(jugadorActivo,scanner);
+                            EscenasController escenasController = new EscenasController(jugadorActivo, scanner);
                             escenasController.iniciarJuego();
 
                             /* Cuando el jugador toca '0' en una escena y vuelve acá, al conectar SQL descomentamos:
-
                             try {
-                                if (jugadorService.guardarPartida(jugadorActivo)) {
-                                    System.out.println("Partida guardada correctamente.");
-                                } else {
-                                    System.out.println("No se encontró el jugador en la base, no se guardó la partida.");
-                                }
+                                JugadorService jugadorService = new JugadorService();
+                                System.out.println(jugadorService.guardarPartida(jugadorActivo)
+                                        ? "Partida guardada correctamente."
+                                        : "No se encontró el jugador en la base, no se guardó la partida.");
                             } catch (SQLException e) {
-                                System.out.println("No se pudo guardar la partida: " + e.getMessage());
-                            }   */
-
+                                System.out.println("Error en la base de datos , no se pudo guardar la partida: " + e.getMessage());
+                            }
+                            */
                         }
-                    }
-                    case "2" -> {
-                        System.out.print("Ingresá la contraseña de administrador: ");
-                        String password = scanner.nextLine().trim();
-                        try {
-                            admin.validarPassword(password);
-                            System.out.println("Contraseña correcta. Ingresando al Panel de Control...");
-                            separarPantalla();
 
-                            // Acá llamaremos a PanelControl (ABMLC)
-                        } catch (ContraseniaIncorrectaException e) {
-                            System.out.println("Error: " + e.getMessage());
-                        }
-                    }
-                    case "0" -> {
-                        System.out.println("Saliendo de Silent Hill: Mar del Plata...");
-                        salir = true;
-                    }
-                    default -> System.out.println("Opción incorrecta. Ingresá 1, 2 o 0.");
                 }
+                case "2" -> {
+                    System.out.print("Ingresá la contraseña de administrador: ");
+                    String password = scanner.nextLine().trim();
+                    try {
+                        admin.validarPassword(password);
+                        System.out.println("Contraseña correcta. Ingresando al Panel de Control...");
+                        separarPantalla();
+                        admin.mostrarMenuABMLC();
+                    } catch (ContraseniaIncorrectaException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                }
+                case "0" -> {
+                    System.out.println("Saliendo de Silent Hill: Mar del Plata...");
+                    salir = true;
+                }
+                default -> System.out.println("Opción incorrecta. Ingresá 1, 2 o 0.");
             }
         }
+    }
 
     // ===================== MENÚ DE USUARIO =====================
 
-    /**
-     * Menú de acceso del usuario. Devuelve el Jugador elegido/creado para jugar,
-     * o null si vuelve al menú principal.
-     */
-    private Jugador gestionarAccesoUsuario() throws SQLException {
+    private Jugador gestionarAccesoUsuario()  {
         while (true) {
             System.out.println("\n--- MENÚ DE USUARIO ---");
             System.out.println("1 - Continuar partida");
@@ -127,13 +117,21 @@ public class MenuPrincipal {
         }
     }
 
-    private Jugador continuarPartida() throws SQLException {
 
-        JugadorService jugadorService = new JugadorService();
+    private Jugador continuarPartida() {
+        JugadorService jugadorService;
+        try {
+            jugadorService = new JugadorService();
+        } catch (SQLException e) {
+            System.out.println("Error al conectar con la base de datos: " + e.getMessage());
+            return null;
+        }
 
-        Set<Jugador> listaJugadores = jugadorService.listarActivos();
+        Set<Jugador> partidasGuardadas;
 
-        if (listaJugadores.isEmpty()) {
+            partidasGuardadas = jugadorService.listarActivos();
+
+        if (partidasGuardadas.isEmpty()) {
             System.out.println("La lista de partidas guardadas está vacía.");
             separarPantalla();
             return null;
@@ -141,7 +139,7 @@ public class MenuPrincipal {
 
         System.out.println("\n--- PARTIDAS GUARDADAS ---");
         int indice = 1;
-        for (Jugador j : listaJugadores) {
+        for (Jugador j : partidasGuardadas) {
             System.out.println(indice + " - " + j.getNombre() + " (Escena: " + j.getEscenaActual() + ")");
             indice++;
         }
@@ -156,7 +154,7 @@ public class MenuPrincipal {
         try {
             int seleccion = Integer.parseInt(seleccionTexto);
             int contador = 1;
-            for (Jugador j : listaJugadores) {
+            for (Jugador j : partidasGuardadas) {
                 if (contador == seleccion) {
                     System.out.println("Cargando partida de " + j.getNombre() + "...");
                     return j;
@@ -165,13 +163,16 @@ public class MenuPrincipal {
             }
             System.out.println("Número de partida inexistente.");
         } catch (NumberFormatException e) {
-            System.out.println("Debés ingresar un número válido.");
+            System.out.println("Ingresá un número válido.");
         }
         return null;
     }
 
-    private Jugador iniciarPartidaNueva() throws SQLException {
-        JugadorService jugadorService = new JugadorService();
+
+
+
+
+    private Jugador iniciarPartidaNueva() {
         System.out.print("Ingresá tu nombre de jugador (o 0 para volver): ");
         String nombre = scanner.nextLine().trim();
 
@@ -183,30 +184,38 @@ public class MenuPrincipal {
             return null;
         }
 
+        JugadorService jugadorService;
         try {
-            Jugador nuevoJugador = new Jugador(nombre);
+            jugadorService = new JugadorService();
+        } catch (SQLException e) {
+            System.out.println("Error al conectar con la base de datos: " + e.getMessage());
+            return null;
+        }
 
-            // El service valida el nombre contra la base y lo agrega a la lista en memoria
+        Jugador nuevoJugador = new Jugador(nombre);
+        try {
             if (!jugadorService.agregar(nuevoJugador)) {
                 System.out.println("No se pudo crear el jugador.");
                 return null;
             }
-
-            System.out.println("¡Usuario '" + nombre + "' creado con éxito!");
-            System.out.println("1 - JUGAR");
-            System.out.println("0 - Volver al menú principal");
-            System.out.print("Elegí una opción: ");
-            String jugarOp = scanner.nextLine().trim();
-
-            return "1".equals(jugarOp) ? nuevoJugador : null;
-
         } catch (UsuarioDuplicadoException e) {
             System.out.println("Error: " + e.getMessage());
+            return null;
         } catch (SQLException e) {
-            System.out.println("Error de base de datos: " + e.getMessage());
+            System.out.println("Error al guardar el jugador en la base de datos: " + e.getMessage());
+            return null;
         }
-        return null;
+
+        System.out.println("¡Usuario '" + nombre + "' creado con éxito!");
+        System.out.println("1 - JUGAR");
+        System.out.println("0 - Volver al menú principal");
+        System.out.print("Elegí una opción: ");
+        String jugarOp = scanner.nextLine().trim();
+
+        return "1".equals(jugarOp) ? nuevoJugador : null;
     }
+
+
 
         private void mostrarLogo() {
             String logo =

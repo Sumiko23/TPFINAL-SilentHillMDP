@@ -3,6 +3,7 @@ package ClasesService;
 import ClasesDAO.ItemDAO;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Items.TipoItem;
+import ClasesPOJO.Jugador;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ public class ItemService {
         this.lista = new ArrayList<>(dao.listar());
     }
 
-    /** Alta. Devuelve false si ya existe un ítem con ese nombre o si no se pudo insertar. */
     public boolean agregar(Item aux) throws SQLException {
         if (dao.buscarPorNombre(aux.getNombre()) != null) {
             return false;
@@ -34,7 +34,6 @@ public class ItemService {
         return false;
     }
 
-    /** Baja lógica: queda en la base con activo = false y sale de la lista en memoria. */
     public boolean eliminar(int id) throws SQLException {
         boolean seElimino = dao.eliminar(id);
         if (seElimino) {
@@ -50,7 +49,6 @@ public class ItemService {
         return seElimino;
     }
 
-    /** Reactiva un ítem dado de baja y lo vuelve a cargar en memoria. */
     public boolean reactivar(int id) throws SQLException {
         boolean seReactivo = dao.reactivar(id);
         if (seReactivo) {
@@ -110,6 +108,9 @@ public class ItemService {
 
 
     public String mostrarListado() {
+        if (lista.isEmpty()) {
+            return "La lista de jugadores activos esta vacia .";
+        }
         StringBuilder res = new StringBuilder();
         for (Item aux : lista) {
             res.append(mostrar(aux));
@@ -119,8 +120,13 @@ public class ItemService {
 
 
     public String mostrarDadosDeBaja() throws SQLException {
+        List<Item> bajas = dao.listarBajas();
+        if (bajas.isEmpty()) {
+            return "No hay jugadores dados de baja.";
+        }
+
         StringBuilder res = new StringBuilder();
-        for (Item aux : dao.listarBajas()) {
+        for (Item aux : bajas) {
             res.append(mostrar(aux));
         }
         return res.toString();
