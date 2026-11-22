@@ -18,7 +18,10 @@ public class JugadorDAO {
     private static final String[] COLS = {
             "nombre", "salud", "monstruos_muertos", "items_obtenidos", "escena_actual", "arma_equipada_id",
             "balas_cargador", "cajas_balas", "depto_visitado", "prefectura_visitada", "barco_visitado",
-            "policia2_aparecio", "caja_sae_abierta", "ronda_rector", "cloaca_muerto", "policia1_muerto",
+            "policia2_aparecio", "caja_sae_abierta",
+            "banio_visitado", "abrir_cofre_ocurrido", "seguirla_ocurrida", "calle_ocurrida",
+            "caja_fuerte_abierta", "sae_puerta_abierta", "segundo_piso_visitado",
+            "cloaca_muerto", "policia1_muerto",
             "policia2_muerto", "acuatico_muerto", "lying_figure1_muerto", "policia3_muerto", "policia4_muerto",
             "lying_figure2_muerto", "cloaca2_muerto", "peluche_muerto", "timba_muerto", "lassie_muerto",
             "maniqui_muerto", "estudiante_muerto", "rector_muerto", "activo"
@@ -127,6 +130,20 @@ public class JugadorDAO {
             }
         }
         return null;
+    }
+    //valida que el nombre no exista ya en la BD
+    public boolean existeNombre(String nombre) throws SQLException {
+        String sql = "SELECT 1 FROM jugadores WHERE nombre = ?";
+
+        try (Connection con = ConexionBD.conectar();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, nombre);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     // modificar jugador (guardar partida) con su inventario
@@ -246,7 +263,14 @@ public class JugadorDAO {
         j.setBarcoVisitado(rs.getBoolean("barco_visitado"));
         j.setPolicia2Aparecio(rs.getBoolean("policia2_aparecio"));
         j.setCajaSaeAbierta(rs.getBoolean("caja_sae_abierta"));
-        j.setRondaRector(rs.getInt("ronda_rector"));
+
+        j.setBanioVisitado(rs.getBoolean("banio_visitado"));
+        j.setAbrirCofreOcurrido(rs.getBoolean("abrir_cofre_ocurrido"));
+        j.setSeguirlaOcurrida(rs.getBoolean("seguirla_ocurrida"));
+        j.setCalleOcurrida(rs.getBoolean("calle_ocurrida"));
+        j.setCajaFuerteAbierta(rs.getBoolean("caja_fuerte_abierta"));
+        j.setSaePuertaAbierta(rs.getBoolean("sae_puerta_abierta"));
+        j.setSegundoPisoVisitado(rs.getBoolean("segundo_piso_visitado"));
 
         j.setCloacaMuerto(rs.getBoolean("cloaca_muerto"));
         j.setPolicia1Muerto(rs.getBoolean("policia1_muerto"));
@@ -292,7 +316,13 @@ public class JugadorDAO {
         ps.setBoolean(i++, j.isBarcoVisitado());
         ps.setBoolean(i++, j.isPolicia2Aparecio());
         ps.setBoolean(i++, j.isCajaSaeAbierta());
-        ps.setInt(i++, j.getRondaRector());
+        ps.setBoolean(i++, j.isBanioVisitado());
+        ps.setBoolean(i++, j.isAbrirCofreOcurrido());
+        ps.setBoolean(i++, j.isSeguirlaOcurrida());
+        ps.setBoolean(i++, j.isCalleOcurrida());
+        ps.setBoolean(i++, j.isCajaFuerteAbierta());
+        ps.setBoolean(i++, j.isSaePuertaAbierta());
+        ps.setBoolean(i++, j.isSegundoPisoVisitado());
         ps.setBoolean(i++, j.isCloacaMuerto());
         ps.setBoolean(i++, j.isPolicia1Muerto());
         ps.setBoolean(i++, j.isPolicia2Muerto());
