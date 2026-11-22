@@ -7,6 +7,7 @@ import Excepciones.UsuarioDuplicadoException;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 public class JugadorService {
@@ -57,17 +58,6 @@ public class JugadorService {
         return seElimino;
     }
 
-    /** Reactiva un jugador dado de baja y lo vuelve a cargar en la lista en memoria. */
-    public boolean reactivar(int id) throws SQLException {
-        boolean seReactivo = dao.reactivar(id);
-        if (seReactivo) {
-            Jugador aux = dao.buscarPorId(id);
-            if (aux != null) {
-                lista.add(aux);
-            }
-        }
-        return seReactivo;
-    }
 
     /** Modificación hecha por el administrador. No permite dejarle a un jugador el nombre de otro. */
     public boolean modificar(int id, Jugador nuevoJugador) throws SQLException, UsuarioDuplicadoException {
@@ -84,6 +74,33 @@ public class JugadorService {
         }
         return seModifico;
     }
+
+    /** Mostrar ugadores activos (lista en memoria). */
+    public String mostrarListado() {
+        if (lista.isEmpty()) {
+            return "La lista de jugadores activos esta vacia .";
+        }
+        StringBuilder res = new StringBuilder();
+        for (Jugador aux : lista) {
+            res.append(mostrar(aux));
+        }
+        return res.toString();
+    }
+
+
+    /** Reactiva un jugador dado de baja y lo vuelve a cargar en la lista en memoria. */
+    public boolean reactivar(int id) throws SQLException {
+        boolean seReactivo = dao.reactivar(id);
+        if (seReactivo) {
+            Jugador aux = dao.buscarPorId(id);
+            if (aux != null) {
+                lista.add(aux);
+            }
+        }
+        return seReactivo;
+    }
+
+
 
     /**
      * Guarda el progreso de la partida (se usa cuando el jugador toca '0' y vuelve al menú principal).
@@ -110,19 +127,16 @@ public class JugadorService {
         return null;
     }
 
-    /** Texto con los jugadores activos (lista en memoria). */
-    public String mostrarListado() {
-        StringBuilder res = new StringBuilder();
-        for (Jugador aux : lista) {
-            res.append(mostrar(aux));
-        }
-        return res.toString();
-    }
 
-    /** Texto con los jugadores dados de baja (se consultan en la base, no están en memoria). */
+
     public String mostrarDadosDeBaja() throws SQLException {
+        List<Jugador> bajas = dao.listarBajas();
+        if (bajas.isEmpty()) {
+            return "No hay jugadores dados de baja.";
+        }
+
         StringBuilder res = new StringBuilder();
-        for (Jugador aux : dao.listarBajas()) {
+        for (Jugador aux : bajas) {
             res.append(mostrar(aux));
         }
         return res.toString();
