@@ -18,17 +18,14 @@ public class JefeFinal extends Enemigo {
      * Si tarda más de 3 segundos (3000 ms), recibe 30 de daño.
      */
     public boolean lanzarDescarga(Jugador jugador, Scanner scanner) {
-        System.out.println("\nLos cables se tensan y la bobina apunta directo hacia vos... ¡DESCARGA!");
         System.out.print("¡Escribí '1' rápido para ESQUIVAR!: ");
         long inicio = System.currentTimeMillis();
         String respuesta = scanner.nextLine().trim();
         long duracion = System.currentTimeMillis() - inicio;
 
         if ("1".equals(respuesta) && duracion <= tiempoLimiteMs) {
-            System.out.println("Te tirás al piso justo a tiempo (" + duracion + " ms) y la descarga pasa sobre tu cabeza...");
             return true;
         } else {
-            System.out.println("Tardaste demasiado (" + duracion + " ms): la descarga eléctrica te da de lleno...");
             jugador.recibirDanio(30);
             return false;
         }

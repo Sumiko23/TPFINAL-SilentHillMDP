@@ -32,8 +32,10 @@ public class MenuPrincipal {
 
                         Jugador jugadorActivo = gestionarAccesoUsuario();
                         if (jugadorActivo != null) {
-                            EscenasController escenasController = new EscenasController(jugadorActivo, scanner);
-                            escenasController.iniciarJuego();
+
+                            JuegoController juegoController = new JuegoController(jugadorActivo);
+                            juegoController.iniciarJuego();
+
 
                             try {
                                 JugadorService jugadorService = new JugadorService();
