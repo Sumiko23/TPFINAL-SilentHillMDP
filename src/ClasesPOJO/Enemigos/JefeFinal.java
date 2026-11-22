@@ -18,7 +18,6 @@ public class JefeFinal extends Enemigo {
      * Si tarda más de 3 segundos (3000 ms), recibe 30 de daño.
      */
     public boolean lanzarDescarga(Jugador jugador, Scanner scanner) {
-        System.out.println("\nLos cables se tensan y la bobina apunta directo hacia vos... ¡DESCARGA!");
         System.out.print("¡Escribí '1' rápido para ESQUIVAR!: ");
         long inicio = System.currentTimeMillis();
         String respuesta = scanner.nextLine().trim();

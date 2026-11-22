@@ -38,49 +38,6 @@ public class JuegoController {
     private void cargarCatalogos() {
         // --- VERSIÓN ACTUAL (EN MEMORIA) ---
         // Al conectar SQL, borramos estas líneas y descomentamos el bloque de abajo.
-        agregarItemAlCatalogo(new Item(1, "Celular", "Tu celular. No prende desde que despertaste.", TipoItem.LLAVE_MISION, 0, 0, true));
-        agregarItemAlCatalogo(new Item(2, "Bebida saludable", "Bebida energizante isotónica que restaura +30 puntos de salud.", TipoItem.CONSUMIBLE, 30, 0, true));
-        agregarItemAlCatalogo(new Item(3, "Pastillas energizantes", "Frasco con pastillas analgésicas que restauran +20 puntos de salud.", TipoItem.CONSUMIBLE, 20, 0, true));
-        agregarItemAlCatalogo(new Item(4, "Linterna", "Linterna de mano indispensable para atravesar túneles y zonas oscuras.", TipoItem.LLAVE_MISION, 0, 0, true));
-        agregarItemAlCatalogo(new Item(5, "Cuchillo", "Cuchillo de cocina oxidado encontrado en la puerta del departamento (25 de daño).", TipoItem.ARMA, 0, 25, true));
-
-        agregarItemAlCatalogo(new Item(6, "Barra de hierro", "Barra metálica pesada hallada junto a la reja del muelle (30 de daño).", TipoItem.ARMA, 0, 30, true));
-        agregarItemAlCatalogo(new Item(7, "Radio", "Radio portátil vieja que emite estática y mensajes de auxilio desde el puerto.", TipoItem.LLAVE_MISION, 0, 0, true));
-        agregarItemAlCatalogo(new Item(8, "Nota heladera", "Nota manchada de sangre con un acertijo sobre la llave de la lancha.", TipoItem.NOTA, 0, 0, true));
-        agregarItemAlCatalogo(new Item(9, "Llave de la lancha", "Llave metálica cubierta de sangre que enciende el motor de la lancha.", TipoItem.LLAVE_MISION, 0, 0, true));
-
-        agregarItemAlCatalogo(new Item(10, "Nota cofre", "Nota amarillenta con pistas numéricas sobre la escollera y los lobos marinos (5543).", TipoItem.NOTA, 0, 0, true));
-        agregarItemAlCatalogo(new Item(11, "Cuchillo de pescador", "Cuchillo largo y muy afilado para filetear pescado (35 de daño).", TipoItem.ARMA, 0, 35, true));
-        agregarItemAlCatalogo(new Item(12, "Llave de la SAE", "Llave con llavero que dice \"SAE - UTN\". Abre la oficina del segundo piso.", TipoItem.LLAVE_MISION, 0, 0, true));
-        agregarItemAlCatalogo(new Item(13, "Botiquín de primeros auxilios", "Maletín médico completo que restaura +50 puntos de salud.", TipoItem.CONSUMIBLE, 50, 0, true));
-        agregarItemAlCatalogo(new Item(14, "Bola de billar", "Bola de pool blanca que dejó caer la niña en el barco del puerto.", TipoItem.LLAVE_MISION, 0, 0, true));
-
-        agregarItemAlCatalogo(new Item(15, "Nota Prefectura",  "Nota manchada de sangre con pistas numéricas sobre banderas, escritorios, reloj y ventanas (2614).", TipoItem.NOTA,         0,  0,  true));
-        catalogoItems.put("beretta 92", new ArmaDeFuego(16, "Beretta 92", "Pistola semiautomática (45 de daño, cargador de 15 balas).", 45, 15, 15, 2, true));
-        agregarItemAlCatalogo(new Item(17, "Caja de balas",    "Caja con 15 balas para recargar la Beretta 92.",                                                      TipoItem.CONSUMIBLE,   0,  0,  true));
-        agregarItemAlCatalogo(new Item(18, "Bebida saludable", "Bebida energizante isotónica que restaura +30 puntos de salud.",                                       TipoItem.CONSUMIBLE,   30, 0,  true));
-        agregarItemAlCatalogo(new Item(19, "Llave del ascensor", "Llave con etiqueta \"Ascensor\" que cae de la mesa de pool.",          TipoItem.LLAVE_MISION, 0, 0,  true));
-        agregarItemAlCatalogo(new Item(20, "Dibujo del patio",   "Dibujo a crayones hecho por la niña con la inscripción \"Acá termina todo\".", TipoItem.NOTA, 0, 0, true));
-        agregarItemAlCatalogo(new Item(21, "Caja de balas",      "Caja con 15 balas para recargar la Beretta 92.",                       TipoItem.CONSUMIBLE,   0, 0,  true));
-        agregarItemAlCatalogo(new Item(21, "Botiquín de primeros auxilios 2", "Segundo botiquín hallado en el baño de la UTN (+50 salud).", TipoItem.CONSUMIBLE, 50, 0, true));
-
-
-        agregarEnemigoAlCatalogo(new EnemigoComun(1, "Monstruo de la cloaca", 25, 10, true, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(2, "Policía muerto 1", 50, 20, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(3, "Policía muerto 2", 50, 20, true, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(4, "Monstruo acuático", 70, 30, true, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(5,  "Lying Figure 1",  70,  30, true,  true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(6,  "Policía muerto 3", 90, 20, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(7,  "Policía muerto 4", 90, 20, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(8,  "Lying Figure 2",  90,  30, true,  true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(9,  "Monstruo de la cloaca 2", 25, 10, true,  true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(10, "Peluche",                 25, 10, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(11, "Timba",                   25, 10, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(12, "Lassie",                  25, 10, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(13, "Maniquí",                 90, 25, false, true));
-        agregarEnemigoAlCatalogo(new EnemigoComun(14, "Estudiante sin rostro",   80, 15, false, true));
-        agregarEnemigoAlCatalogo(new JefeFinal(15, "El Rector", 200, 40, false, true, 3000L));
-
         // --- VERSIÓN FINAL (CON SQL) ---
         // for (Item item : itemService.listarActivos()) {
         //     agregarItemAlCatalogo(item);
@@ -88,14 +45,6 @@ public class JuegoController {
         // for (Enemigo enemigo : enemigoService.listarActivos()) {
         //     agregarEnemigoAlCatalogo(enemigo);
         // }
-    }
-
-    private void agregarItemAlCatalogo(Item item) {
-        catalogoItems.put(item.getNombre().toLowerCase(), item);
-    }
-
-    private void agregarEnemigoAlCatalogo(Enemigo enemigo) {
-        catalogoEnemigos.put(enemigo.getNombre().toLowerCase(), enemigo);
     }
 
     private Item obtenerItem(String nombre) {
@@ -107,7 +56,7 @@ public class JuegoController {
     }
 
     private void separarPantalla() {
-        System.out.println("\n-----------------------------------------------------------------\n");
+        System.out.println("\n------------------------------------------------------------------------------\n");
     }
 
     public void iniciarJuego() {
