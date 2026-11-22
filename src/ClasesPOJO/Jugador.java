@@ -27,11 +27,17 @@ public class Jugador implements IAtacable {
 
     // Estado de escenas en memoria
     private boolean deptoVisitado;
-    private boolean prefecturaVisitada;
-    private boolean barcoVisitado;
+    private boolean banioVisitado;
     private boolean policia2Aparecio;
+    private boolean barcoVisitado;
+    private boolean abrirCofreOcurrido;
+    private boolean seguirlaOcurrida;
+    private boolean calleOcurrida;
+    private boolean prefecturaVisitada;
+    private boolean cajaFuerteAbierta;
+    private boolean saePuertaAbierta;
     private boolean cajaSaeAbierta;
-    private int rondaRector;
+    private boolean segundoPisoVisitado;
 
     // Estado de enemigos derrotados en memoria
     private boolean cloacaMuerto;
@@ -127,7 +133,7 @@ public class Jugador implements IAtacable {
     }
 
     // Getters y Setters
-
+    
     public int getId() {
         return id;
     }
@@ -152,6 +158,9 @@ public class Jugador implements IAtacable {
         this.activo = activo;
     }
 
+    public boolean isCajaFuerteAbierta() { return cajaFuerteAbierta; }
+    public void setCajaFuerteAbierta(boolean b) { this.cajaFuerteAbierta = b; }
+
     public int getSalud() { return salud; }
     public void setSalud(int salud) { this.salud = Math.max(0, Math.min(SALUD_MAXIMA, salud)); }
 
@@ -170,6 +179,9 @@ public class Jugador implements IAtacable {
     public Item getArmaEquipada() { return armaEquipada; }
     public void setArmaEquipada(Item armaEquipada) { this.armaEquipada = armaEquipada; }
 
+    public boolean isSaePuertaAbierta() { return saePuertaAbierta; }
+    public void setSaePuertaAbierta(boolean b) { this.saePuertaAbierta = b; }
+
     public int getBalasCargador() { return balasCargador; }
     public void setBalasCargador(int balasCargador) { this.balasCargador = balasCargador; }
 
@@ -179,20 +191,26 @@ public class Jugador implements IAtacable {
     public boolean isDeptoVisitado() { return deptoVisitado; }
     public void setDeptoVisitado(boolean deptoVisitado) { this.deptoVisitado = deptoVisitado; }
 
+    public boolean isBanioVisitado() { return banioVisitado; }
+    public void setBanioVisitado(boolean banioVisitado) { this.banioVisitado = banioVisitado; }
+
     public boolean isPrefecturaVisitada() { return prefecturaVisitada; }
     public void setPrefecturaVisitada(boolean prefecturaVisitada) { this.prefecturaVisitada = prefecturaVisitada; }
 
     public boolean isBarcoVisitado() { return barcoVisitado; }
     public void setBarcoVisitado(boolean barcoVisitado) { this.barcoVisitado = barcoVisitado; }
 
+    public boolean isSegundoPisoVisitado() { return segundoPisoVisitado; }
+    public void setSegundoPisoVisitado(boolean b) { this.segundoPisoVisitado = b; }
+
     public boolean isPolicia2Aparecio() { return policia2Aparecio; }
     public void setPolicia2Aparecio(boolean policia2Aparecio) { this.policia2Aparecio = policia2Aparecio; }
 
+    public boolean isSeguirlaOcurrida() { return seguirlaOcurrida; }
+    public void setSeguirlaOcurrida(boolean b) { this.seguirlaOcurrida = b; }
+
     public boolean isCajaSaeAbierta() { return cajaSaeAbierta; }
     public void setCajaSaeAbierta(boolean cajaSaeAbierta) { this.cajaSaeAbierta = cajaSaeAbierta; }
-
-    public int getRondaRector() { return rondaRector; }
-    public void setRondaRector(int rondaRector) { this.rondaRector = rondaRector; }
 
     public boolean isCloacaMuerto() { return cloacaMuerto; }
     public void setCloacaMuerto(boolean cloacaMuerto) { this.cloacaMuerto = cloacaMuerto; }
@@ -205,6 +223,12 @@ public class Jugador implements IAtacable {
 
     public boolean isAcuaticoMuerto() { return acuaticoMuerto; }
     public void setAcuaticoMuerto(boolean acuaticoMuerto) { this.acuaticoMuerto = acuaticoMuerto; }
+
+    public boolean isAbrirCofreOcurrido() { return abrirCofreOcurrido; }
+    public void setAbrirCofreOcurrido(boolean b) { this.abrirCofreOcurrido = b; }
+
+    public boolean isCalleOcurrida() { return calleOcurrida; }
+    public void setCalleOcurrida(boolean b) { this.calleOcurrida = b; }
 
     public boolean isLyingFigure1Muerto() { return lyingFigure1Muerto; }
     public void setLyingFigure1Muerto(boolean lyingFigure1Muerto) { this.lyingFigure1Muerto = lyingFigure1Muerto; }
