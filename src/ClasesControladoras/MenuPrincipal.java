@@ -36,16 +36,16 @@ public class MenuPrincipal {
                             JuegoController juegoController = new JuegoController(jugadorActivo);
                             juegoController.iniciarJuego();
 
-
-                            try {
-                                JugadorService jugadorService = new JugadorService();
-                                System.out.println(jugadorService.guardarPartida(jugadorActivo)
-                                        ? "Partida guardada correctamente."
-                                        : "No se encontró el jugador en la base, no se guardó la partida.");
-                            } catch (SQLException e) {
-                                System.out.println("Error en la base de datos , no se pudo guardar la partida: " + e.getMessage());
+                            if (jugadorActivo.estaVivo()) {
+                                try {
+                                    JugadorService jugadorService = new JugadorService();
+                                    System.out.println(jugadorService.guardarPartida(jugadorActivo)
+                                            ? "Partida guardada correctamente."
+                                            : "No se encontró el jugador en la base, no se guardó la partida.");
+                                } catch (SQLException e) {
+                                    System.out.println("Error en la base de datos , no se pudo guardar la partida: " + e.getMessage());
+                                }
                             }
-
                         }
 
                 }

@@ -1,20 +1,14 @@
 package ClasesControladoras;
-
 import ClasesPOJO.Enemigos.Enemigo;
-import ClasesPOJO.Enemigos.EnemigoComun;
 import ClasesPOJO.Enemigos.JefeFinal;
 import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
-import ClasesPOJO.Items.TipoItem;
 import ClasesPOJO.Jugador;
 import ClasesService.EnemigoService;
 import ClasesService.ItemService;
 import ClasesService.JugadorService;
 import Excepciones.OpcionIncorrectaException;
-
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class JuegoController {
@@ -58,24 +52,14 @@ public class JuegoController {
         if (nombre == null || itemService == null) {
             return null;
         }
-        try {
-            return itemService.buscarPorNombreBD(nombre);
-        } catch (SQLException e) {
-            System.out.println("Error al buscar ítem en la base de datos  " + e.getMessage());
-            return null;
-        }
+            return itemService.buscarPorNombreMemoria(nombre);
     }
 
     private Enemigo obtenerEnemigo(String nombre) {
         if (nombre == null || enemigoService == null) {
             return null;
         }
-        try {
-            return enemigoService.buscarPorNombreBD(nombre);
-        } catch (SQLException e) {
-            System.out.println("Error al buscar enemigo enla base de datos "+ e.getMessage());
-            return null;
-        }
+            return enemigoService.buscarPorNombreMemoria(nombre);
     }
 
 
@@ -180,9 +164,14 @@ public class JuegoController {
             return true;
         }
         if ("0".equals(opcion)) {
-            // Al conectar SQL descomentamos:
-            // jugadorService.guardarPartida(jugador);
-            System.out.println("Partida guardada correctamente. Volviendo al menú principal...");
+            try {
+                boolean guardada = jugadorService.guardarPartida(jugador);
+                System.out.println(guardada
+                        ? "Partida guardada correctamente. Volviendo al menú principal..."
+                        : "No se pudo guardar la partida. Volviendo al menú principal...");
+            } catch (SQLException e) {
+                System.out.println("Error al guardar la partida en la base de datos : " + e.getMessage());
+            }
             salirAlMenu = true;
             return true;
         }
@@ -370,6 +359,7 @@ public class JuegoController {
             jugador.setSalud(100); //ELIMINAR DESPUÉS
             System.out.println("Retomando partida en: " + jugador.getEscenaActual());
         } else {
+
             salirAlMenu = true;
         }
     }
