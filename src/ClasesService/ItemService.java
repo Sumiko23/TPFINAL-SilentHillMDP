@@ -3,8 +3,6 @@ package ClasesService;
 import ClasesDAO.ItemDAO;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Items.TipoItem;
-import ClasesPOJO.Jugador;
-
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;

@@ -106,10 +106,14 @@ public class JugadorService {
      * Guarda el progreso de la partida (se usa cuando el jugador toca '0' y vuelve al menú principal).
      * Devuelve false si el jugador no existe en la base.
      */
-    public boolean guardarPartida(Jugador jugador) throws SQLException {
-        return dao.modificar(jugador);
-    }
 
+    public boolean guardarPartida(Jugador jugador) throws SQLException {
+        boolean guardado = dao.modificar(jugador);
+        if (guardado) {
+            this.lista = new LinkedHashSet<>(dao.listar());
+        }
+        return guardado;
+    }
     public Jugador buscarPorIdBD(int id) throws SQLException {
         return dao.buscarPorId(id);
     }
