@@ -1,5 +1,6 @@
 package ClasesControladoras;
 
+import ClasesDAO.JugadorDAO;
 import ClasesPOJO.Enemigos.Enemigo;
 import ClasesPOJO.Enemigos.EnemigoComun;
 import ClasesPOJO.Enemigos.JefeFinal;
@@ -23,8 +24,8 @@ public class JuegoController {
     private final Scanner scanner = new Scanner(System.in);
     private boolean salirAlMenu = false;
     private JugadorService jugadorService;
-     private ItemService itemService ;
-     private EnemigoService enemigoService ;
+    private ItemService itemService ;
+    private EnemigoService enemigoService ;
 
     public JuegoController(Jugador jugador) {
         this.jugador = jugador;
@@ -58,24 +59,15 @@ public class JuegoController {
         if (nombre == null || itemService == null) {
             return null;
         }
-        try {
-            return itemService.buscarPorNombreBD(nombre);
-        } catch (SQLException e) {
-            System.out.println("Error al buscar ítem en la base de datos  " + e.getMessage());
-            return null;
-        }
+            return itemService.buscarPorNombreMemoria(nombre);
     }
 
     private Enemigo obtenerEnemigo(String nombre) {
         if (nombre == null || enemigoService == null) {
             return null;
         }
-        try {
-            return enemigoService.buscarPorNombreBD(nombre);
-        } catch (SQLException e) {
-            System.out.println("Error al buscar enemigo enla base de datos "+ e.getMessage());
-            return null;
-        }
+            return enemigoService.buscarPorNombreMemoria(nombre);
+
     }
 
 
@@ -139,18 +131,29 @@ public class JuegoController {
     // MÉTODOS AUXILIARES DE INTERACCIÓN, INVENTARIO Y COMBATE
     // =========================================================================
 
-    /**
-     * Valida que el usuario ingrese únicamente 1 a maxOpciones, 'i' (inventario) o '0' (guardar y salir).
-     */
-    private String leerOpcionValida(int maxOpciones) {
+
+    //Valida que el usuario ingrese únicamente 1 a maxOpciones, 'i' (inventario) o '0' (guardar y salir).
+
+    private String leerOpcionValida(int maxOpciones, boolean enCombate) {
         while (true) {
-            System.out.println("\n[i] Abrir inventario | [0] Guardar partida y volver al menú principal");
+            if (enCombate){
+                System.out.println("\n[i] Abrir inventario");
+            } else {
+                System.out.println("\n[i] Abrir inventario | [0] Guardar partida y volver al menú principal");
+            }
             System.out.print("Elegí una opción: ");
             String entrada = scanner.nextLine().trim();
 
             try {
-                if ("0".equals(entrada) || "i".equalsIgnoreCase(entrada)) {
+                if ("i".equalsIgnoreCase(entrada)) {
                     return entrada.toLowerCase();
+                }
+                if ("0".equals(entrada)) {
+                    if (enCombate) {
+                        System.out.println("No podés guardar la partida durante un combate.");
+                        continue;
+                    }
+                    return entrada;
                 }
 
                 boolean valida = false;
@@ -171,17 +174,19 @@ public class JuegoController {
         }
     }
 
-    /**
-     * Procesa las opciones globales 'i' (inventario) y '0' (guardar y salir).
-     */
+    private String leerOpcionValida(int maxOpciones) {
+        return leerOpcionValida(maxOpciones, false);
+    }
+
+     // Procesa las opciones globales 'i' (inventario) y '0' (guardar y salir).
+
     private boolean manejarOpcionGlobal(String opcion) {
         if ("i".equals(opcion)) {
             abrirInventario();
             return true;
         }
         if ("0".equals(opcion)) {
-            // Al conectar SQL descomentamos:
-            // jugadorService.guardarPartida(jugador);
+            //jugadorService.guardarPartida(jugador);
             System.out.println("Partida guardada correctamente. Volviendo al menú principal...");
             salirAlMenu = true;
             return true;
@@ -312,11 +317,11 @@ public class JuegoController {
         }
     }
 
-    /**
-     * Combate reiterativo:
-     * - No muestra cuánta vida le queda al monstruo ni al jugador.
-     * - Si el jugador necesita darle más de dos golpes, el monstruo contraataca.
-     */
+
+//     Combate reiterativo:
+//     - No muestra cuánta vida le queda al monstruo ni al jugador.
+//     - Si el jugador necesita darle más de dos golpes, el monstruo contraataca.
+
     private boolean ejecutarCombate(Enemigo enemigo, boolean permiteCorrer) {
         enemigo.reiniciarSalud();
         int cantidadGolpes = 0;
@@ -327,7 +332,7 @@ public class JuegoController {
                 System.out.println("Opción 2: Correr");
             }
 
-            String op = leerOpcionValida(permiteCorrer ? 2 : 1);
+            String op = leerOpcionValida(permiteCorrer ? 2 : 1, true);
             if (manejarOpcionGlobal(op)) {
                 if (salirAlMenu) return false;
                 continue;
@@ -365,10 +370,55 @@ public class JuegoController {
         String op = scanner.nextLine().trim();
 
         if ("1".equals(op)) {
-            // Al conectar SQL, acá recargaríamos el último estado guardado desde la BD:
-            // jugadorService.recargarUltimoGuardado(jugador);
-            jugador.setSalud(100); //ELIMINAR DESPUÉS
-            System.out.println("Retomando partida en: " + jugador.getEscenaActual());
+            try {
+                JugadorDAO jugadorDAO = new JugadorDAO();
+                Jugador guardado = jugadorDAO.buscarPorId(jugador.getId());
+
+                if (guardado != null) {
+                    // Copiamos el estado guardado al jugador activo
+                    jugador.setSalud(guardado.getSalud());
+                    jugador.setEscenaActual(guardado.getEscenaActual());
+                    jugador.setInventario(guardado.getInventario());
+                    jugador.setArmaEquipada(guardado.getArmaEquipada());
+                    jugador.setBalasCargador(guardado.getBalasCargador());
+                    jugador.setCajasBalas(guardado.getCajasBalas());
+                    jugador.setMonstruosMuertos(guardado.getMonstruosMuertos());
+                    jugador.setItemsObtenidos(guardado.getItemsObtenidos());
+                    // flags de escenas
+                    jugador.setDeptoVisitado(guardado.isDeptoVisitado());
+                    jugador.setPrefecturaVisitada(guardado.isPrefecturaVisitada());
+                    jugador.setBarcoVisitado(guardado.isBarcoVisitado());
+                    jugador.setPolicia2Aparecio(guardado.isPolicia2Aparecio());
+                    jugador.setCajaSaeAbierta(guardado.isCajaSaeAbierta());
+                    jugador.setBanioVisitado(guardado.isBanioVisitado());
+                    jugador.setAbrirCofreOcurrido(guardado.isAbrirCofreOcurrido());
+                    jugador.setSeguirlaOcurrida(guardado.isSeguirlaOcurrida());
+                    jugador.setCalleOcurrida(guardado.isCalleOcurrida());
+                    jugador.setCajaFuerteAbierta(guardado.isCajaFuerteAbierta());
+                    jugador.setSaePuertaAbierta(guardado.isSaePuertaAbierta());
+                    jugador.setSegundoPisoVisitado(guardado.isSegundoPisoVisitado());
+                    // flags de enemigos
+                    jugador.setCloacaMuerto(guardado.isCloacaMuerto());
+                    jugador.setPolicia1Muerto(guardado.isPolicia1Muerto());
+                    jugador.setPolicia2Muerto(guardado.isPolicia2Muerto());
+                    jugador.setAcuaticoMuerto(guardado.isAcuaticoMuerto());
+                    jugador.setLyingFigure1Muerto(guardado.isLyingFigure1Muerto());
+                    jugador.setPolicia3Muerto(guardado.isPolicia3Muerto());
+                    jugador.setPolicia4Muerto(guardado.isPolicia4Muerto());
+                    jugador.setLyingFigure2Muerto(guardado.isLyingFigure2Muerto());
+                    jugador.setCloaca2Muerto(guardado.isCloaca2Muerto());
+                    jugador.setPelucheMuerto(guardado.isPelucheMuerto());
+                    jugador.setTimbaMuerto(guardado.isTimbaMuerto());
+                    jugador.setLassieMuerto(guardado.isLassieMuerto());
+                    jugador.setManiquiMuerto(guardado.isManiquiMuerto());
+                    jugador.setEstudianteMuerto(guardado.isEstudianteMuerto());
+                    jugador.setRectorMuerto(guardado.isRectorMuerto());
+
+                    System.out.println("Retomando partida en: " + jugador.getEscenaActual());
+                }
+            } catch (SQLException e) {
+                System.out.println("Error al recargar la partida: " + e.getMessage());
+            }
         } else {
             salirAlMenu = true;
         }
@@ -1809,8 +1859,8 @@ public class JuegoController {
 
     private void escenaPatio() {
         separarPantalla();
-
         JefeFinal rector = (JefeFinal) obtenerEnemigo("El Rector");
+        //Castea al rector desde el método de obtener enemigos a "JefeFinal"
 
         if (!jugador.isRectorMuerto()) {
             // Primera vez: presentación
@@ -1862,7 +1912,7 @@ public class JuegoController {
                 // La salud del Rector persiste en la instancia del catálogo
                 jugador.setEscenaActual("Patio");
             } else {
-                System.out.println("El Rector cae de rodillas y se desploma sobre el piso del patio.");
+                System.out.println("El Rector cae muerto de rodillas y se desploma sobre el piso del patio.");
                 jugador.setRectorMuerto(true);
                 jugador.registrarEnemigoMuerto();
 
@@ -1905,7 +1955,7 @@ public class JuegoController {
             }
         }
 
-        System.out.println("\n--- FIN ---");
+        System.out.println("\n--- FIN ---\n");
         System.out.println("Monstruos derrotados: " + jugador.getMonstruosMuertos());
         System.out.println("Ítems obtenidos: "      + jugador.getItemsObtenidos());
         System.out.println("\nOpción 1: Volver al menú principal");
