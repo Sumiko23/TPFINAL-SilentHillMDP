@@ -77,6 +77,7 @@ public class JugadorDAO {
     public List<Jugador> listarBajas() throws SQLException {
         return listarPorEstado(false);
     }
+
     //lista jugadores de la BD segun su estado(true o false):
     private List<Jugador> listarPorEstado(boolean activo) throws SQLException {
         List<Jugador> jugadores = new ArrayList<>();
@@ -130,20 +131,6 @@ public class JugadorDAO {
             }
         }
         return null;
-    }
-    //valida que el nombre no exista ya en la BD
-    public boolean existeNombre(String nombre) throws SQLException {
-        String sql = "SELECT 1 FROM jugadores WHERE nombre = ?";
-
-        try (Connection con = ConexionBD.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, nombre);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
     }
 
     // modificar jugador (guardar partida) con su inventario
