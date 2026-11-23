@@ -7,8 +7,12 @@ import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Items.TipoItem;
 import ClasesPOJO.Jugador;
+import ClasesService.EnemigoService;
+import ClasesService.ItemService;
+import ClasesService.JugadorService;
 import Excepciones.OpcionIncorrectaException;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -18,42 +22,62 @@ public class JuegoController {
     private final Jugador jugador;
     private final Scanner scanner = new Scanner(System.in);
     private boolean salirAlMenu = false;
-
-    // Cuando conectemos SQL al final, descomentamos el Service:
-    // private final JugadorService jugadorService = new JugadorService();
-    // Catálogos cargados una sola vez al iniciar el controlador
-
-    private final Map<String, Item> catalogoItems = new HashMap<>();
-    private final Map<String, Enemigo> catalogoEnemigos = new HashMap<>();
-
-    // Cuando conectemos SQL, descomentamos los Services:
-    // private final ItemService itemService = new ItemService();
-    // private final EnemigoService enemigoService = new EnemigoService();
+    private JugadorService jugadorService;
+     private ItemService itemService ;
+     private EnemigoService enemigoService ;
 
     public JuegoController(Jugador jugador) {
         this.jugador = jugador;
-        cargarCatalogos();
+        inicializarServicios();
     }
 
-    private void cargarCatalogos() {
-        // --- VERSIÓN ACTUAL (EN MEMORIA) ---
-        // Al conectar SQL, borramos estas líneas y descomentamos el bloque de abajo.
-        // --- VERSIÓN FINAL (CON SQL) ---
-        // for (Item item : itemService.listarActivos()) {
-        //     agregarItemAlCatalogo(item);
-        // }
-        // for (Enemigo enemigo : enemigoService.listarActivos()) {
-        //     agregarEnemigoAlCatalogo(enemigo);
-        // }
+    private void inicializarServicios() {
+        try {
+            this.jugadorService = new JugadorService();
+        } catch (SQLException e) {
+            System.out.println("Error al inicializar JugadorService en la base de datos : " + e.getMessage());
+            this.salirAlMenu = true;
+        }
+
+        try {
+            this.itemService = new ItemService();
+        } catch (SQLException e) {
+            System.out.println("Error al inicializar ItemService en la base de datos : " + e.getMessage());
+            this.salirAlMenu = true;
+        }
+
+        try {
+            this.enemigoService = new EnemigoService();
+        } catch (SQLException e) {
+            System.out.println("Error al inicializar EnemigoService en la base de datos : " + e.getMessage());
+            this.salirAlMenu = true;
+        }
     }
 
     private Item obtenerItem(String nombre) {
-        return catalogoItems.get(nombre.toLowerCase());
+        if (nombre == null || itemService == null) {
+            return null;
+        }
+        try {
+            return itemService.buscarPorNombreBD(nombre);
+        } catch (SQLException e) {
+            System.out.println("Error al buscar ítem en la base de datos  " + e.getMessage());
+            return null;
+        }
     }
 
     private Enemigo obtenerEnemigo(String nombre) {
-        return catalogoEnemigos.get(nombre.toLowerCase());
+        if (nombre == null || enemigoService == null) {
+            return null;
+        }
+        try {
+            return enemigoService.buscarPorNombreBD(nombre);
+        } catch (SQLException e) {
+            System.out.println("Error al buscar enemigo enla base de datos "+ e.getMessage());
+            return null;
+        }
     }
+
 
     private void separarPantalla() {
         System.out.println("\n------------------------------------------------------------------------------\n");
