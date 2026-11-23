@@ -1,4 +1,5 @@
 package ClasesControladoras;
+import ClasesDAO.JugadorDAO;
 import ClasesPOJO.Enemigos.Enemigo;
 import ClasesPOJO.Enemigos.JefeFinal;
 import ClasesPOJO.Items.ArmaDeFuego;

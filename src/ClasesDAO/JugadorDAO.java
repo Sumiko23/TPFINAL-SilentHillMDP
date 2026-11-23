@@ -77,6 +77,7 @@ public class JugadorDAO {
     public List<Jugador> listarBajas() throws SQLException {
         return listarPorEstado(false);
     }
+
     //lista jugadores de la BD segun su estado(true o false):
     private List<Jugador> listarPorEstado(boolean activo) throws SQLException {
         List<Jugador> jugadores = new ArrayList<>();
