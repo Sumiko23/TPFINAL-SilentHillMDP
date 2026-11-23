@@ -5,10 +5,6 @@ import ClasesPOJO.Items.Inventario;
 import ClasesPOJO.Items.Item;
 import Interfaces.IAtacable;
 
-/**
- * POJO principal del jugador. Almacena todo el progreso de la partida en memoria
- * y se persiste en MySQL únicamente al crear partida o guardar/salir ('0').
- */
 public class Jugador implements IAtacable {
     private static final int SALUD_MAXIMA = 100;
     private static final int DANIO_SIN_ARMA = 10;
@@ -72,12 +68,6 @@ public class Jugador implements IAtacable {
         this.salud = SALUD_MAXIMA;
         this.escenaActual = "Departamento";
         this.inventario = new Inventario();
-    }
-
-    public void mostrarMenu() {
-        System.out.println("=== SESIÓN DE JUGADOR: " + nombre + " ===");
-        System.out.println("1 - Continuar partida guardada");
-        System.out.println("2 - Iniciar partida nueva");
     }
 
     @Override
