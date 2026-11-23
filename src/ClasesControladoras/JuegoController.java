@@ -1,21 +1,14 @@
 package ClasesControladoras;
-
-import ClasesDAO.JugadorDAO;
 import ClasesPOJO.Enemigos.Enemigo;
-import ClasesPOJO.Enemigos.EnemigoComun;
 import ClasesPOJO.Enemigos.JefeFinal;
 import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
-import ClasesPOJO.Items.TipoItem;
 import ClasesPOJO.Jugador;
 import ClasesService.EnemigoService;
 import ClasesService.ItemService;
 import ClasesService.JugadorService;
 import Excepciones.OpcionIncorrectaException;
-
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Scanner;
 
 public class JuegoController {
@@ -67,7 +60,6 @@ public class JuegoController {
             return null;
         }
             return enemigoService.buscarPorNombreMemoria(nombre);
-
     }
 
 
@@ -186,8 +178,14 @@ public class JuegoController {
             return true;
         }
         if ("0".equals(opcion)) {
-            //jugadorService.guardarPartida(jugador);
-            System.out.println("Partida guardada correctamente. Volviendo al menú principal...");
+            try {
+                boolean guardada = jugadorService.guardarPartida(jugador);
+                System.out.println(guardada
+                        ? "Partida guardada correctamente. Volviendo al menú principal..."
+                        : "No se pudo guardar la partida. Volviendo al menú principal...");
+            } catch (SQLException e) {
+                System.out.println("Error al guardar la partida en la base de datos : " + e.getMessage());
+            }
             salirAlMenu = true;
             return true;
         }
@@ -420,6 +418,7 @@ public class JuegoController {
                 System.out.println("Error al recargar la partida: " + e.getMessage());
             }
         } else {
+
             salirAlMenu = true;
         }
     }
