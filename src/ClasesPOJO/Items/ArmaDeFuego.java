@@ -1,9 +1,5 @@
 package ClasesPOJO.Items;
 
-/**
- * Representa el arma de fuego, la Beretta 92.
- * Hereda de Item y gestiona el cargador y las cajas de balas.
- */
 public class ArmaDeFuego extends Item {
     private int balasCargador;
     private int capacidadCargador;
@@ -17,10 +13,9 @@ public class ArmaDeFuego extends Item {
         this.cajasBalas = cajasBalas;
     }
 
-    /**
-     * Descuenta una bala por disparo.
-     * @return true si pudo disparar, false si no tenía balas.
-     */
+
+     //Descuenta una bala por disparo.
+
     public boolean disparar() {
         if (balasCargador > 0) {
             balasCargador--;
