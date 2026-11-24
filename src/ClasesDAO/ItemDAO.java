@@ -1,5 +1,6 @@
 package ClasesDAO;
 
+import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Items.TipoItem;
 
@@ -173,14 +174,18 @@ public class ItemDAO {
     }
 
     private Item mapear(ResultSet rs) throws SQLException {
-        return new Item(
-                rs.getInt("id"),
-                rs.getString("nombre"),
-                rs.getString("descripcion"),
-                TipoItem.valueOf(rs.getString("tipo")),
-                rs.getInt("efecto_curacion"),
-                rs.getInt("danio"),
-                rs.getBoolean("activo")
-        );
+        int id = rs.getInt("id");
+        String nombre = rs.getString("nombre");
+        String descripcion = rs.getString("descripcion");
+        TipoItem tipo = TipoItem.valueOf(rs.getString("tipo"));
+        int danio = rs.getInt("danio");
+        boolean activo = rs.getBoolean("activo");
+
+        if (tipo == TipoItem.ARMA_FUEGO) {
+            int capacidad = rs.getInt("capacidad_cargador");
+            // JugadorDAO restaura después las balas y cajas guardadas del jugador
+            return new ArmaDeFuego(id, nombre, descripcion, danio, capacidad, capacidad, 0, activo);
+        }
+        return new Item(id, nombre, descripcion, tipo, rs.getInt("efecto_curacion"), danio, activo);
     }
 }

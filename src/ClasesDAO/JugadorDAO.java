@@ -1,5 +1,6 @@
 package ClasesDAO;
 
+import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Jugador;
 
@@ -276,13 +277,32 @@ public class JugadorDAO {
         j.setRectorMuerto(rs.getBoolean("rector_muerto"));
 
         int armaId = rs.getInt("arma_equipada_id");
-        if (!rs.wasNull()) {
-            j.setArmaEquipada(itemDAO.buscarPorId(armaId));
-            // Si tu ArmaDeFuego tiene setBalasCargador, descomentá:
-            // if (j.getArmaEquipada() instanceof ArmaDeFuego af) af.setBalasCargador(j.getBalasCargador());
-        }
+        boolean tieneArma = !rs.wasNull();
 
         cargarInventario(con, j);
+
+        // Restaura la munición guardada en las armas de fuego del inventario
+        for (Item it : j.getInventario().getItems()) {
+            if (it instanceof ArmaDeFuego af) {
+                af.setBalasCargador(j.getBalasCargador());
+                af.setCajasBalas(j.getCajasBalas());
+            }
+        }
+
+        // El arma equipada es la misma instancia que está en el inventario (así el estado es uno solo)
+        if (tieneArma) {
+            Item arma = null;
+            for (Item it : j.getInventario().getItems()) {
+                if (it.getId() == armaId) {
+                    arma = it;
+                    break;
+                }
+            }
+            if (arma == null) {
+                arma = itemDAO.buscarPorId(armaId);
+            }
+            j.setArmaEquipada(arma);
+        }
         return j;
     }
 
@@ -296,8 +316,9 @@ public class JugadorDAO {
         ps.setString(i++, j.getEscenaActual());
         if (j.getArmaEquipada() != null) ps.setInt(i++, j.getArmaEquipada().getId());
         else ps.setNull(i++, Types.INTEGER);
-        ps.setInt(i++, j.getBalasCargador());
-        ps.setInt(i++, j.getCajasBalas());
+        ArmaDeFuego af = armaDeFuegoDe(j);
+        ps.setInt(i++, af != null ? af.getBalasCargador() : j.getBalasCargador());
+        ps.setInt(i++, af != null ? af.getCajasBalas() : j.getCajasBalas());
         ps.setBoolean(i++, j.isDeptoVisitado());
         ps.setBoolean(i++, j.isPrefecturaVisitada());
         ps.setBoolean(i++, j.isBarcoVisitado());
@@ -326,5 +347,12 @@ public class JugadorDAO {
         ps.setBoolean(i++, j.isEstudianteMuerto());
         ps.setBoolean(i++, j.isRectorMuerto());
         ps.setBoolean(i++, j.isActivo());
+    }
+    private ArmaDeFuego armaDeFuegoDe(Jugador j) {
+        if (j.getArmaEquipada() instanceof ArmaDeFuego af) return af;
+        for (Item it : j.getInventario().getItems()) {
+            if (it instanceof ArmaDeFuego af) return af;
+        }
+        return null;
     }
 }
