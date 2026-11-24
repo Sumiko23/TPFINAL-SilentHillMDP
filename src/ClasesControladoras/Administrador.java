@@ -228,8 +228,9 @@ public class Administrador {
                         int curacion = Integer.parseInt(scanner.nextLine().trim());
                         System.out.print("Ingrese daño: ");
                         int danio = Integer.parseInt(scanner.nextLine().trim());
+                        int cantidadBalas = Integer.parseInt(scanner.nextLine().trim());
 
-                        Item nuevo = new Item(0, nombre, descripcion, tipo, curacion, danio, true);
+                        Item nuevo = new Item(0, nombre, descripcion, tipo, curacion, cantidadBalas, danio, true);
                         System.out.println(itemService.agregar(nuevo)
                                 ? "Ítem creado." : "Ya existe un ítem con ese nombre o no se pudo insertar.");
                     } catch (NumberFormatException e) {
@@ -267,8 +268,9 @@ public class Administrador {
                             int curacion = Integer.parseInt(scanner.nextLine().trim());
                             System.out.print("Ingrese el nuevo daño: ");
                             int danio = Integer.parseInt(scanner.nextLine().trim());
+                            int cantidadBalas = Integer.parseInt(scanner.nextLine().trim());
 
-                            Item modificado = new Item(0, nombre, descripcion, tipo, curacion, danio, true);
+                            Item modificado = new Item(0, nombre, descripcion, tipo, curacion, cantidadBalas, danio, true);
                             System.out.println(itemService.modificar(id, modificado)
                                     ? "Ítem modificado." : "El nombre ya lo usa otro ítem o no se pudo modificar.");
                         }

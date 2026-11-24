@@ -8,6 +8,7 @@ public class Item {
     private String descripcion;
     private TipoItem tipo;
     private int efectoCuracion;
+    private int cantidadBalas;
     private int danio;
     private boolean activo;
 
@@ -15,12 +16,13 @@ public class Item {
         this.activo = true;
     }
 
-    public Item(int id, String nombre, String descripcion, TipoItem tipo, int efectoCuracion, int danio, boolean activo) {
+    public Item(int id, String nombre, String descripcion, TipoItem tipo, int efectoCuracion, int cantidadBalas, int danio, boolean activo) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.tipo = tipo;
         this.efectoCuracion = efectoCuracion;
+        this.cantidadBalas = cantidadBalas;
         this.danio = danio;
         this.activo = activo;
     }
@@ -43,6 +45,15 @@ public class Item {
 
     public int getEfectoCuracion() { return efectoCuracion; }
     public void setEfectoCuracion(int efectoCuracion) { this.efectoCuracion = efectoCuracion; }
+
+    public int getCantidadBalas() {
+        return cantidadBalas;
+    }
+
+    public Item setCantidadBalas(int cantidadBalas) {
+        this.cantidadBalas = cantidadBalas;
+        return this;
+    }
 
     public int getDanio() { return danio; }
     public void setDanio(int danio) { this.danio = danio; }

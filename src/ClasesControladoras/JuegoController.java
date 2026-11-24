@@ -275,18 +275,33 @@ public class JuegoController {
                     jugador.curar(item.getEfectoCuracion());
                     jugador.getInventario().removerItem(item);
                     System.out.println("Usaste " + item.getNombre() + " (+" + item.getEfectoCuracion() + " de salud).");
-                } else if (item.getNombre().equalsIgnoreCase("Caja de balas")) {
-                    if (jugador.getArmaEquipada() instanceof ArmaDeFuego armaFuego) {
-                        armaFuego.setCajasBalas(armaFuego.getCajasBalas() + 1);
-                        if (armaFuego.recargar()) {
-                            jugador.setBalasCargador(armaFuego.getBalasCargador());
-                            jugador.setCajasBalas(armaFuego.getCajasBalas());
-                            jugador.getInventario().removerItem(item);
-                        }
+                }  else if (item.getNombre().toLowerCase().startsWith("caja de balas")) {
+                if (jugador.getArmaEquipada() instanceof ArmaDeFuego armaFuego) {
+                    if (armaFuego.getBalasCargador() >= armaFuego.getCapacidadCargador()) {
+                        System.out.println("El cargador ya está lleno.");
                     } else {
-                        System.out.println("Tenés que equipar la Beretta 92 antes de recargar.");
+                        int balasEnCaja = item.getCantidadBalas();
+                        int usadas = armaFuego.cargarDesdeCantidad(balasEnCaja);
+                        jugador.setBalasCargador(armaFuego.getBalasCargador());
+
+                        int restantes = balasEnCaja - usadas;
+                        item.setCantidadBalas(restantes);
+
+                        if (restantes <= 0) {
+                            jugador.getInventario().removerItem(item);
+                            System.out.println("Recargaste " + usadas + " balas ("
+                                    + armaFuego.getBalasCargador() + "/" + armaFuego.getCapacidadCargador()
+                                    + "). La caja quedó vacía y se quitó del inventario.");
+                        } else {
+                            System.out.println("Recargaste " + usadas + " balas ("
+                                    + armaFuego.getBalasCargador() + "/" + armaFuego.getCapacidadCargador()
+                                    + "). Quedan " + restantes + " balas en la caja.");
+                        }
                     }
+                } else {
+                    System.out.println("Tenés que equipar un arma de fuego antes de recargar.");
                 }
+            }
             }
             case ARMA, ARMA_FUEGO -> {
                 jugador.setArmaEquipada(item);
@@ -412,6 +427,12 @@ public class JuegoController {
                     jugador.setManiquiMuerto(guardado.isManiquiMuerto());
                     jugador.setEstudianteMuerto(guardado.isEstudianteMuerto());
                     jugador.setRectorMuerto(guardado.isRectorMuerto());
+
+                    // El Rector no pasa por ejecutarCombate: se le restaura la vida a mano
+                    Enemigo rector = obtenerEnemigo("El Rector");
+                    if (rector != null) {
+                        rector.reiniciarSalud();
+                    }
 
                     System.out.println("Retomando partida en: " + jugador.getEscenaActual());
                 }
@@ -578,11 +599,12 @@ public class JuegoController {
             if (salirAlMenu || !jugador.estaVivo()) return;
             jugador.setBanioVisitado(true);
             if (loMato) {
+                separarPantalla();
                 System.out.println("El monstruo ha muerto...");
                 System.out.println("*¡¿QUÉ FUE ESO?!*");
                 System.out.println("Alcanzás a ver una bebida saludable en un estante del baño.");
                 jugador.setCloacaMuerto(true);
-                jugador.registrarNuevoItem(obtenerItem("Bebida saludable"));
+                jugador.registrarNuevoItem(obtenerItem("Bebida saludable 1"));
                 System.out.println("Nuevo ítem: Bebida saludable.");
             } else {
                 System.out.println("Intentás escapar pero el monstruo te ataca por la espalda antes de que logres cerrar la puerta... (-10 de salud)");
@@ -660,7 +682,7 @@ public class JuegoController {
             jugador.setPolicia2Aparecio(true);
 
             if (loMato) {
-                System.out.println("El policía cae al piso y aprovechás para terminarlo...");
+                System.out.println("El policía cae al piso y aprovechás para matarlo...");
                 jugador.setPolicia2Muerto(true);
 
             } else {
@@ -746,17 +768,17 @@ public class JuegoController {
         boolean tieneLlave = jugador.getInventario().tieneItem("Llave de la lancha");
 
         if (!jugador.isPolicia1Muerto()) {
-
-            System.out.println("Abrís la puerta de la garita policial abandonada y un fuerte hedor te pega en la cara.");
-            System.out.println("Alumbrás con la linterna y ves algo moviéndose en las sombras...");
-            System.out.println("Antes de poder reaccionar o defenderte, un policía muerto te ataca y te lanza contra el otro extremo de la habitación! (-20 de vida)");
-            jugador.recibirDanio(20);
-            System.out.println("» Salud actual: " + jugador.getSalud() + "/100");
-
-            if (!jugador.estaVivo()) return;
-
+            if (!jugador.isPostaAtaqueSorpresa()) {
+                System.out.println("Abrís la puerta de la garita policial abandonada y un fuerte hedor te pega en la cara.");
+                System.out.println("Alumbrás con la linterna y ves algo moviéndose en las sombras...");
+                System.out.println("Antes de poder reaccionar o defenderte, un policía muerto te ataca y te lanza contra el otro extremo de la habitación! (-20 de vida)");
+                jugador.recibirDanio(20);
+                System.out.println("» Salud actual: " + jugador.getSalud() + "/100");
+                if (!jugador.estaVivo()) return;
+                jugador.setPostaAtaqueSorpresa(true);
+            }
             Enemigo policia1 = obtenerEnemigo("Policía muerto 1");
-            boolean loMato = ejecutarCombate(policia1, false);
+            ejecutarCombate(policia1, false);
 
             if (salirAlMenu || !jugador.estaVivo()) return;
 
@@ -770,7 +792,7 @@ public class JuegoController {
             //Si todavía no tiene ni la llave ni la radio
         } else if (!tieneRadio && !tieneLlave) {
             System.out.println("El lugar se ve bastante abandonado y huele horrible.");
-            System.out.println("Hay una heladera con una nota pegada...");
+            System.out.println("Hay una heladera...");
             System.out.println("\nOpción 1: Echar un vistazo alrededor");
             System.out.println("Opción 2: " + textoHeladera());
             System.out.println("Opción 3: Volver al muelle");
@@ -884,7 +906,7 @@ public class JuegoController {
         }
 
         if (!jugador.getInventario().tieneItem("Llave de la lancha")) {
-            System.out.println("Hay una bolsa llena de sangre con algún tipo de carne que huele terrible. Muchas moscas y larvas salen de ella...");
+            System.out.println("\nHay una bolsa llena de sangre con algún tipo de carne que huele terrible. Muchas moscas y larvas salen de ella...");
             System.out.println("\nOpción 1: Meter la mano");
             System.out.println("Opción 2: Volver a la posta");
 
@@ -910,11 +932,14 @@ public class JuegoController {
 
     private void escenaMeterLaMano() {
         separarPantalla();
-        System.out.println("Metés la mano dentro de la bolsa, sintiendo una viscosidad repugnante...");
-        System.out.println("¡Ahí está! Sacás una llave cubierta de sangre.");
-        jugador.registrarNuevoItem(obtenerItem("Llave de la lancha"));
-        System.out.println("Nuevo ítem: Llave de la lancha.");
-
+        if (!jugador.getInventario().tieneItem("Llave de la lancha")) {
+            System.out.println("Metés la mano dentro de la bolsa, sintiendo una viscosidad repugnante...");
+            System.out.println("¡Ahí está! Sacás una llave cubierta de sangre.");
+            jugador.registrarNuevoItem(obtenerItem("Llave de la lancha"));
+            System.out.println("Nuevo ítem: Llave de la lancha.");
+        } else {
+            System.out.println("Ya sacaste la llave. No hay nada más en la bolsa.");
+        }
         System.out.println("\nOpción 1: Seguir revisando");
         System.out.println("Opción 2: Volver al muelle");
 
@@ -934,14 +959,14 @@ public class JuegoController {
         separarPantalla();
         boolean tieneCuchillo = jugador.getInventario().tieneItem("Cuchillo de pescador");
         boolean barcoVisitado = jugador.isBarcoVisitado();
-        boolean tieneBotiquin = jugador.getInventario().tieneItem("Botiquín de primeros auxilios");
+        boolean tieneBotiquin = jugador.getInventario().tieneItem("Botiquín de primeros auxilios 1");
         boolean notaCofre = jugador.getInventario().tieneItem("Nota cofre");
 
         // Texto de llegada según estado
         if (!tieneCuchillo && !barcoVisitado) {
             System.out.println("Llegaste al puerto.");
             System.out.println("El olor a pescado podrido es espantoso...");
-            System.out.println("Escuchás ruidos que vienen de un barco...");
+            System.out.println("Escuchás ruidos que vienen de un barco...\n");
         } else if (tieneCuchillo && tieneBotiquin) {
 
             System.out.println("*Ya no tengo nada que hacer acá...*");
@@ -1024,7 +1049,7 @@ public class JuegoController {
             System.out.println("Nuevo ítem: Nota cofre.");
         }
 
-        System.out.println("Es un cofre antiguo... me pregunto qué tendrá dentro.");
+        System.out.println("\nEs un cofre antiguo... me pregunto qué tendrá dentro.");
         System.out.println("\nOpción 1: Insertar código");
         System.out.println("Opción 2: Volver al puerto");
 
@@ -1063,7 +1088,7 @@ public class JuegoController {
             jugador.registrarNuevoItem(obtenerItem("Llave de la SAE"));
             System.out.println("Nuevos ítems: Cuchillo de pescador y Llave de la SAE.");
 
-            System.out.println("Apenas recogés las cosas, notás que el agua empieza a moverse formando un remolino...");
+            System.out.println("\nApenas recogés las cosas, notás que el agua empieza a moverse formando un remolino...");
             System.out.println("Un monstruo parecido a un lobo marino sale del agua intentando aplastarte...");
 
             Enemigo acuatico = obtenerEnemigo("Monstruo acuático");
@@ -1107,8 +1132,8 @@ public class JuegoController {
             System.out.println("El barco está vacío. La niña ya no está.");
         }
 
-        if (!jugador.getInventario().tieneItem("Botiquín de primeros auxilios")) {
-            System.out.println("Sobre la cubierta hay un maletín cerrado.");
+        if (!jugador.getInventario().tieneItem("Botiquín de primeros auxilios 1")) {
+            System.out.println("\nSobre la cubierta hay un maletín cerrado.");
             System.out.println("\nOpción 1: Seguir a la niña");
             System.out.println("Opción 2: Abrir maletín");
             System.out.println("Opción 3: Volver al puerto");
@@ -1120,7 +1145,7 @@ public class JuegoController {
                 case "1" -> jugador.setEscenaActual("Seguirla");
                 case "2" -> {
                     System.out.println("Has encontrado un botiquín de primeros auxilios.");
-                    jugador.registrarNuevoItem(obtenerItem("Botiquín de primeros auxilios"));
+                    jugador.registrarNuevoItem(obtenerItem("Botiquín de primeros auxilios 1"));
                     System.out.println("Nuevo ítem: Botiquín de primeros auxilios.");
                     System.out.println("*Probablemente debería seguir a esa niña. Es muy peligroso que ande sola.*");
                     System.out.println("\nOpción 1: Seguir a la niña");
@@ -1151,18 +1176,29 @@ public class JuegoController {
         separarPantalla();
 
         if (!jugador.isSeguirlaOcurrida()) {
-            System.out.println("Empezás a caminar pero la niebla es cada vez más espesa...");
-            System.out.println("Una especie de monstruo sin brazos se acerca para atacarte...");
 
-            System.out.println("\nOpción 1: Atacar monstruo");
-            System.out.println("Opción 2: Esquivar y correr");
+            if (!jugador.isSeguirlaFaseAcido() && !jugador.isSeguirlaFaseCombate()) {
+                // Fase 1: primer menú
+                System.out.println("Empezás a caminar pero la niebla es cada vez más espesa...");
+                System.out.println("Una especie de monstruo sin brazos se acerca para atacarte...");
+                System.out.println("\nOpción 1: Atacar monstruo");
+                System.out.println("Opción 2: Esquivar y correr");
 
-            String op = leerOpcionValida(2);
-            if (manejarOpcionGlobal(op)) return;
+                String op = leerOpcionValida(2);
+                if (manejarOpcionGlobal(op)) return;
 
-            if ("1".equals(op)) {
+                if ("2".equals(op)) {
+                    // Esquivó directo: sin daño
+                    jugador.setSeguirlaOcurrida(true);
+                } else {
+                    // Eligió atacar: pasa a fase ácido
+                    jugador.setSeguirlaFaseAcido(true);
+                }
+            }
+
+            if (jugador.isSeguirlaFaseAcido() && !jugador.isSeguirlaFaseCombate()) {
+                // Fase 2: menú atacar por atrás
                 System.out.println("Te acercás pero del agujero de su pecho sale ácido que desintegra tu ropa...");
-
                 System.out.println("\nOpción 1: Atacar por atrás");
                 System.out.println("Opción 2: Esquivar y correr");
 
@@ -1170,25 +1206,35 @@ public class JuegoController {
                 if (manejarOpcionGlobal(op2)) return;
 
                 if ("1".equals(op2)) {
-                    Enemigo lyingFigure = obtenerEnemigo("Lying Figure 1");
-                    boolean loMato = ejecutarCombate(lyingFigure, true);
-                    System.out.println("Lográs hacerle daño al monstruo atacando por atrás.");
-                    if (salirAlMenu || !jugador.estaVivo()) return;
-                    if (loMato) {
-                        System.out.println("El monstruo cayó al piso muerto...");
-                        jugador.setLyingFigure1Muerto(true);
-                    }
+                    jugador.setSeguirlaFaseCombate(true);
                 } else {
-                    System.out.println("Logras escapar pero el ácido alcanza a quemar tu ropa y tu piel... (-30 de salud)");
+                    // Esquivó después del ácido: -30
+                    System.out.println("Lográs escapar pero el ácido alcanza a quemar tu ropa y tu piel... (-30 de salud)");
                     jugador.recibirDanio(30);
                     if (!jugador.estaVivo()) return;
+                    jugador.setSeguirlaOcurrida(true);
                 }
             }
-            jugador.setSeguirlaOcurrida(true);
+
+            if (jugador.isSeguirlaFaseCombate()) {
+                // Fase 3: combate real
+                System.out.println("Te tirás al suelo y rodeás al monstruo para atacarlo por atrás...");
+                Enemigo lyingFigure = obtenerEnemigo("Lying Figure 1");
+                boolean loMato = ejecutarCombate(lyingFigure, true);
+                if (salirAlMenu || !jugador.estaVivo()) return;
+
+                if (loMato) {
+                    System.out.println("Lográs hacerle daño al monstruo atacando por atrás.");
+                    System.out.println("El monstruo cayó al piso muerto...");
+                    jugador.setLyingFigure1Muerto(true);
+                } else {
+                    System.out.println("Lográs escapar del monstruo corriendo entre la niebla...");
+                }
+                jugador.setSeguirlaOcurrida(true);
+            }
         }
 
-        System.out.println("Logras escapar pero el ácido alcanza a quemar tu ropa..." +
-                "*Estos monstruos son asquerosos... Será mejor que consiga una campera y un arma...*");
+        System.out.println("*Estos monstruos son asquerosos... Será mejor que consiga una campera y un arma...*");
         System.out.println("\nOpción 1: Buscar abrigo y arma");
 
         String opFinal = leerOpcionValida(1);
@@ -1329,7 +1375,6 @@ public class JuegoController {
 
             if ("1".equals(op)) {
                 System.out.print("Ingresá el código de 4 dígitos de la caja fuerte: ");
-                scanner.nextLine();
                 String codigo = scanner.nextLine().trim();
 
                 if ("2614".equals(codigo)) {
@@ -1338,13 +1383,8 @@ public class JuegoController {
                     System.out.println("Adentro hay una pistola Beretta 92 y una caja de balas.");
                     System.out.println("Sacás el cargador: tiene 15 balas.");
 
-                    ArmaDeFuego beretta = new ArmaDeFuego(
-                            16, "Beretta 92",
-                            "Pistola semiautomática (45 de daño, cargador de 15 balas).",
-                            45, 15, 15, 1, true
-                    );
-                    jugador.registrarNuevoItem(beretta);
-                    jugador.registrarNuevoItem(obtenerItem("Caja de balas"));
+                    jugador.registrarNuevoItem(obtenerItem("Beretta 92"));
+                    jugador.registrarNuevoItem(obtenerItem("Caja de balas 1"));
                     System.out.println("Nuevos ítems: Beretta 92 y 1 caja de balas.");
                     System.out.println("*Ahora sí tengo con qué defenderme...*");
 
@@ -1397,18 +1437,19 @@ public class JuegoController {
                 System.out.println("Te plantás y los enfrentás de a uno...");
 
                 Enemigo policia3 = obtenerEnemigo("Policía muerto 3");
-                policia3.reiniciarSalud();
                 ejecutarCombate(policia3, false);
                 if (salirAlMenu || !jugador.estaVivo()) return;
                 System.out.println("Mataste el primer policía...");
                 jugador.setPolicia3Muerto(true);
 
                 Enemigo policia4 = obtenerEnemigo("Policía muerto 4");
-                policia4.reiniciarSalud();
                 ejecutarCombate(policia4, false);
                 if (salirAlMenu || !jugador.estaVivo()) return;
                 System.out.println("Mataste al segundo policía...");
                 jugador.setPolicia4Muerto(true);
+                System.out.println("Uno de los policías deja caer una bebida saludable al piso.");
+                jugador.registrarNuevoItem(obtenerItem("Bebida saludable 2"));
+                System.out.println("Nuevo ítem: Bebida saludable.");
 
             } else {
                 System.out.println("La puerta sigue trabada y los policías te alcanzan... (-20 de vida)");
@@ -1421,9 +1462,6 @@ public class JuegoController {
         }
 
         // Fuera del if: solo se muestra cuando el combate ya terminó
-        System.out.println("Uno de los policías deja caer una bebida saludable al piso.");
-        jugador.registrarNuevoItem(obtenerItem("Bebida saludable"));
-        System.out.println("Nuevo ítem: Bebida saludable.");
         System.out.println("Se escucha un clic metálico: la traba de la puerta principal se soltó.");
 
         System.out.println("\nOpción 1: Salir de la Prefectura");
@@ -1450,7 +1488,7 @@ public class JuegoController {
 
             if ("1".equals(op)) {
                 Enemigo lyingFigure2 = obtenerEnemigo("Lying Figure 2");
-                boolean loMato = ejecutarCombate(lyingFigure2, false);
+                ejecutarCombate(lyingFigure2, false);
                 if (salirAlMenu || !jugador.estaVivo()) return;
                 jugador.setLyingFigure2Muerto(true);
                 System.out.println("*Cada vez hay más monstruos... Será mejor que me apure.*");
@@ -1522,31 +1560,22 @@ public class JuegoController {
         System.out.println("\"Sólo una hace falta para subir\"");
         System.out.println("La mesa tiene agujeros para meter las bolas y, abajo, una abertura por donde salen las bolas cuando se meten.");
 
-        boolean tieneLlaveAscensor = jugador.getInventario().tieneItem("Llave del ascensor");
-
-        if (!tieneLlaveAscensor) {
-            System.out.println("\nAbrí el inventario si querés interactuar con algo.");
+        if (!jugador.getInventario().tieneItem("Llave del ascensor")) {
             System.out.println("Opción 1: Volver a revisar el buffet");
 
             String op = leerOpcionValida(1);
             if (manejarOpcionGlobal(op)) return;
 
             jugador.setEscenaActual("Buffet");
-            }else{
+        } else {
+            System.out.println("Ya usaste la bola de billar. No hay nada más para hacer en la mesa.");
             System.out.println("\nOpción 1: Ir al ascensor");
+
             String op = leerOpcionValida(1);
             if (manejarOpcionGlobal(op)) return;
 
             jugador.setEscenaActual("Ascensor");
         }
-
-            System.out.println("Ya usaste la bola de billar. No hay nada más para hacer en la mesa.");
-            System.out.println("\nOpción 1: Volver a revisar el buffet");
-
-            String op = leerOpcionValida(1);
-            if (manejarOpcionGlobal(op)) return;
-
-            jugador.setEscenaActual("Buffet");
     }
 
     // -------------------------------------------------------------------------
@@ -1554,7 +1583,7 @@ public class JuegoController {
     private void escenaAscensor() {
         separarPantalla();
         boolean tieneLlaveAscensor = jugador.getInventario().tieneItem("Llave del ascensor");
-        boolean cloaca2Muerto      = jugador.isCloaca2Muerto();
+        boolean cloaca2Muerto = jugador.isCloaca2Muerto();
 
         if (!tieneLlaveAscensor) {
             System.out.println("El ascensor tiene una cerradura en lugar de botones. Sin la llave no se mueve.");
@@ -1566,25 +1595,48 @@ public class JuegoController {
             jugador.setEscenaActual("Buffet");
 
         } else if (!cloaca2Muerto) {
-            // Primera vez con llave: el monstruo de la cloaca sale del baño (esquivable)
-            System.out.println("Caminás hacia el ascensor con la llave en la mano, pero la puerta del baño que está al lado");
-            System.out.println("se abre de golpe y una figura inhumana, sale arrastrándose hacia vos...");
 
-            System.out.println("\nOpción 1: Atacar");
-            System.out.println("Opción 2: Correr");
+            if (!jugador.isAscensorEnCombate()) {
+                // Todavía no eligió atacar: muestra las opciones
+                System.out.println("Caminás hacia el ascensor con la llave en la mano, pero la puerta del baño que está al lado");
+                System.out.println("se abre de golpe y una figura inhumana sale arrastrándose hacia vos...");
 
-            String op = leerOpcionValida(2);
-            if (manejarOpcionGlobal(op)) return;
+                System.out.println("\nOpción 1: Atacar");
+                System.out.println("Opción 2: Correr");
 
-            if ("1".equals(op)) {
-                System.out.println("Te preparás y lo atacás...");
-                Enemigo cloaca2 = obtenerEnemigo("Monstruo de la cloaca 2");
-                ejecutarCombate(cloaca2, true);
-                if (salirAlMenu || !jugador.estaVivo()) return;
+                String op = leerOpcionValida(2);
+                if (manejarOpcionGlobal(op)) return;
 
+                if ("2".equals(op)) {
+                    // Corrió desde el menú principal
+                    System.out.println("Lográs meterte en el ascensor y las puertas se cierran cortando la cabeza del monstruo... (-10 de salud)");
+                    jugador.recibirDanio(10);
+                    jugador.setCloaca2Muerto(true);
+                    if (!jugador.estaVivo()) return;
+
+                    System.out.println("\nOpción 1: Subir en el ascensor");
+                    String op2 = leerOpcionValida(1);
+                    if (manejarOpcionGlobal(op2)) return;
+
+                    jugador.setEscenaActual("Segundo piso");
+                    return;
+                }
+
+                // Eligió atacar: marca que está en combate
+                jugador.setAscensorEnCombate(true);
+            }
+
+            // Ya eligió atacar (o volvió del inventario durante el combate): retoma directo
+            System.out.println("Te preparás y lo atacás...");
+            Enemigo cloaca2 = obtenerEnemigo("Monstruo de la cloaca 2");
+            boolean loMato = ejecutarCombate(cloaca2, true);
+            if (salirAlMenu || !jugador.estaVivo()) return;
+
+            jugador.setCloaca2Muerto(true);
+            jugador.setAscensorEnCombate(false); // resetea para futuras partidas
+
+            if (loMato) {
                 System.out.println("El monstruo cae al piso. Del baño sigue saliendo un olor nauseabundo...");
-                jugador.setCloaca2Muerto(true);
-
                 System.out.println("\nOpción 1: Subir en el ascensor");
                 System.out.println("Opción 2: Revisar el baño");
 
@@ -1592,34 +1644,30 @@ public class JuegoController {
                 if (manejarOpcionGlobal(op2)) return;
 
                 jugador.setEscenaActual("1".equals(op2) ? "Segundo piso" : "BañoUTN");
-
             } else {
-                // Corrió: la garra lo alcanza antes de que cierren las puertas (-10)
-                System.out.println("El monstruo alcanza a herirte justo antes de que el ascensor se cierre y corte su cabeza... (-10 de salud)");
+                System.out.println("Lográs meterte en el ascensor y las puertas se cierran cortando la cabeza del monstruo... (-10 de salud)");
                 jugador.recibirDanio(10);
-                jugador.setCloaca2Muerto(true);
                 if (!jugador.estaVivo()) return;
 
                 System.out.println("\nOpción 1: Subir en el ascensor");
-
                 String op2 = leerOpcionValida(1);
                 if (manejarOpcionGlobal(op2)) return;
 
                 jugador.setEscenaActual("Segundo piso");
             }
-
         } else {
-            // Cloaca 2 ya muerto: ascensor libre
-            System.out.println("El ascensor espera con las puertas abiertas.");
-            System.out.println("\nOpción 1: Subir en el ascensor");
-            System.out.println("Opción 2: Revisar el baño");
+        // Cloaca 2 ya muerto: ascensor libre
+        System.out.println("El ascensor espera con las puertas abiertas.");
+        System.out.println("\nOpción 1: Subir en el ascensor");
+        System.out.println("Opción 2: Revisar el baño");
 
-            String op = leerOpcionValida(2);
-            if (manejarOpcionGlobal(op)) return;
+        String op = leerOpcionValida(2);
+        if (manejarOpcionGlobal(op)) return;
 
-            jugador.setEscenaActual("1".equals(op) ? "Segundo piso" : "BañoUTN");
-        }
+        jugador.setEscenaActual("1".equals(op) ? "Segundo piso" : "BañoUTN");
     }
+}
+
 
     // -------------------------------------------------------------------------
 
@@ -1747,7 +1795,7 @@ public class JuegoController {
             // Maniquí ya muerto: revisamos cajones
             if (!jugador.isCajaSaeAbierta()) {
                 System.out.println("Revisás los cajones de los escritorios. En uno encontrás una caja de balas.");
-                jugador.registrarNuevoItem(obtenerItem("Caja de balas"));
+                jugador.registrarNuevoItem(obtenerItem("Caja de balas 2"));
                 jugador.setCajaSaeAbierta(true);
                 System.out.println("Nuevo ítem: Caja de balas.");
             } else {
@@ -1922,6 +1970,9 @@ public class JuegoController {
 
                 jugador.setEscenaActual("Final");
             }
+        }else {
+            // El Rector ya murió (se abrió el inventario o se guardó antes de continuar)
+            jugador.setEscenaActual("Final");
         }
     }
 

@@ -6,11 +6,10 @@ public class ArmaDeFuego extends Item {
     private int cajasBalas;
 
     public ArmaDeFuego(int id, String nombre, String descripcion, int danio,
-                       int balasCargador, int capacidadCargador, int cajasBalas, boolean activo) {
-        super(id, nombre, descripcion, TipoItem.ARMA_FUEGO, 0, danio, activo);
+                       int balasCargador, int capacidadCargador, boolean activo) {
+        super(id, nombre, descripcion, TipoItem.ARMA_FUEGO, 0 ,0,danio, activo);
         this.balasCargador = balasCargador;
         this.capacidadCargador = capacidadCargador;
-        this.cajasBalas = cajasBalas;
     }
 
 
@@ -22,24 +21,19 @@ public class ArmaDeFuego extends Item {
             System.out.println("Disparaste. Balas restantes en cargador: " + balasCargador + "/" + capacidadCargador);
             return true;
         } else {
-            if (cajasBalas > 0) {
-                System.out.println("¡Click! Sin balas. Tenés cajas disponibles para recargar.");
-            } else {
-                System.out.println("¡Click! No hay más balas disponibles para recargar.");
-            }
+            System.out.println("¡Click! Sin balas en el cargador.");
             return false;
         }
     }
 
-    public boolean recargar() {
-        if (cajasBalas > 0) {
-            cajasBalas--;
-            balasCargador = capacidadCargador;
-            System.out.println("Recargaste "+ balasCargador + " balas. Cajas restantes: " + cajasBalas);
-            return true;
+    public int cargarDesdeCantidad(int balasDisponibles) {
+        int espacioLibre = capacidadCargador - balasCargador;
+        if (espacioLibre <= 0 || balasDisponibles <= 0) {
+            return 0;
         }
-        System.out.println("No tenés cajas de balas disponibles para recargar.");
-        return false;
+        int usadas = Math.min(espacioLibre, balasDisponibles);
+        balasCargador += usadas;
+        return usadas;
     }
 
     public int getBalasCargador() { return balasCargador; }
@@ -48,6 +42,4 @@ public class ArmaDeFuego extends Item {
     public int getCapacidadCargador() { return capacidadCargador; }
     public void setCapacidadCargador(int capacidadCargador) { this.capacidadCargador = capacidadCargador; }
 
-    public int getCajasBalas() { return cajasBalas; }
-    public void setCajasBalas(int cajasBalas) { this.cajasBalas = cajasBalas; }
 }

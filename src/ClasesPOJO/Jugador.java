@@ -5,6 +5,8 @@ import ClasesPOJO.Items.Inventario;
 import ClasesPOJO.Items.Item;
 import Interfaces.IAtacable;
 
+import java.util.Objects;
+
 public class Jugador implements IAtacable {
     private static final int SALUD_MAXIMA = 100;
     private static final int DANIO_SIN_ARMA = 10;
@@ -34,6 +36,10 @@ public class Jugador implements IAtacable {
     private boolean saePuertaAbierta;
     private boolean cajaSaeAbierta;
     private boolean segundoPisoVisitado;
+    private boolean seguirlaFaseAcido;
+    private boolean seguirlaFaseCombate;
+    private boolean postaAtaqueSorpresa;
+    private boolean ascensorEnCombate;
 
     // Estado de enemigos derrotados en memoria
     private boolean cloacaMuerto;
@@ -252,4 +258,28 @@ public class Jugador implements IAtacable {
 
     public boolean isRectorMuerto() { return rectorMuerto; }
     public void setRectorMuerto(boolean rectorMuerto) { this.rectorMuerto = rectorMuerto; }
+
+    public boolean isSeguirlaFaseAcido() { return seguirlaFaseAcido; }
+    public void setSeguirlaFaseAcido(boolean b) { this.seguirlaFaseAcido = b; }
+
+    public boolean isSeguirlaFaseCombate() { return seguirlaFaseCombate; }
+    public void setSeguirlaFaseCombate(boolean b) { this.seguirlaFaseCombate = b; }
+
+    public boolean isPostaAtaqueSorpresa() { return postaAtaqueSorpresa; }
+    public void setPostaAtaqueSorpresa(boolean b) { this.postaAtaqueSorpresa = b; }
+
+    public boolean isAscensorEnCombate() { return ascensorEnCombate; }
+    public void setAscensorEnCombate(boolean b) { this.ascensorEnCombate = b; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Jugador jugador = (Jugador) o;
+        return Objects.equals(nombre, jugador.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(nombre);
+    }
 }

@@ -132,7 +132,7 @@ public class ItemDAO {
     // modificar item
     public boolean modificar(Item item) throws SQLException {
         String sql = "UPDATE items SET nombre = ?, descripcion = ?, tipo = ?, efecto_curacion = ?, "
-                + "danio = ?, activo = ? WHERE id = ?";
+                + "cantidadBalas = ?, danio = ?, activo = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -141,9 +141,10 @@ public class ItemDAO {
             ps.setString(2, item.getDescripcion());
             ps.setString(3, item.getTipo().name());
             ps.setInt(4, item.getEfectoCuracion());
-            ps.setInt(5, item.getDanio());
-            ps.setBoolean(6, item.isActivo());
-            ps.setInt(7, item.getId());
+            ps.setInt(5, item.getCantidadBalas());
+            ps.setInt(6, item.getDanio());
+            ps.setBoolean(7, item.isActivo());
+            ps.setInt(8, item.getId());
 
             return ps.executeUpdate() > 0;
         }
@@ -179,6 +180,7 @@ public class ItemDAO {
                 rs.getString("descripcion"),
                 TipoItem.valueOf(rs.getString("tipo")),
                 rs.getInt("efecto_curacion"),
+                rs.getInt("cantidadBalas"),
                 rs.getInt("danio"),
                 rs.getBoolean("activo")
         );
