@@ -122,16 +122,6 @@ public class JugadorService {
         return dao.buscarPorNombre(nombre);
     }
 
-    public Jugador buscarPorIdMemoria(int id) {
-        for (Jugador aux : lista) {
-            if (aux.getId() == id) {
-                return aux;
-            }
-        }
-        return null;
-    }
-
-
 
     public String mostrarDadosDeBaja() throws SQLException {
         List<Jugador> bajas = dao.listarBajas();

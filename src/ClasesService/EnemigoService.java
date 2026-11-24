@@ -84,14 +84,7 @@ public EnemigoService() throws SQLException {
             return dao.buscarPorNombre(nombre);
         }
 
-        public Enemigo buscarPorIdMemoria(int id) {
-            for (Enemigo aux : lista) {
-                if (aux.getId() == id) {
-                    return aux;
-                }
-            }
-            return null;
-        }
+
 
         public Enemigo buscarPorNombreMemoria(String nombre) {
             for (Enemigo aux : lista) {
