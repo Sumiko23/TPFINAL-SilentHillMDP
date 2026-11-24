@@ -82,14 +82,6 @@ public class ItemService {
         return dao.buscarPorNombre(nombre);
     }
 
-    public Item buscarPorIdMemoria(int id) {
-        for (Item aux : lista) {
-            if (aux.getId() == id) {
-                return aux;
-            }
-        }
-        return null;
-    }
 
     public Item buscarPorNombreMemoria(String nombre) {
         for (Item aux : lista) {
@@ -135,7 +127,8 @@ public class ItemService {
                 + " | Tipo: " + i.getTipo()
                 + " | Curación: " + i.getEfectoCuracion()
                 + " | Daño: " + i.getDanio()
-                + " | " + i.getDescripcion() + "\n";
+                + " | Cantidad de Balas " + i.getCantidadBalas()
+                + " | " + i.getDescripcion()  +  "\n";
     }
 
 
