@@ -13,10 +13,9 @@ public class JefeFinal extends Enemigo {
         this.tiempoLimiteMs = tiempoLimiteMs > 0 ? tiempoLimiteMs : 3000L;
     }
 
-    /**
-     * Mide en milisegundos cuánto tarda el jugador en reaccionar (sin hilos).
-     * Si tarda más de 3 segundos (3000 ms), recibe 30 de daño.
-     */
+
+     //Mide en milisegundos cuánto tarda el jugador en reaccionar (sin hilos).
+     //Si tarda más de 3 segundos (3000 ms), recibe 30 de daño.
     public boolean lanzarDescarga(Jugador jugador, Scanner scanner) {
         System.out.print("¡Escribí '1' rápido para ESQUIVAR!: ");
         long inicio = System.currentTimeMillis();
