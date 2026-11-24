@@ -1,5 +1,6 @@
 package ClasesDAO;
 
+import ClasesPOJO.Items.ArmaDeFuego;
 import ClasesPOJO.Items.Item;
 import ClasesPOJO.Items.TipoItem;
 
@@ -12,10 +13,13 @@ import java.util.List;
 
 public class ItemDAO {
 
+    private static final String SELECT =
+            "SELECT id, nombre, descripcion, tipo, efecto_curacion, capacidad_cargador, danio, activo FROM items";
+
     // insertar item en la BD
     public int insertar(Item item) throws SQLException {
-        String sqlInsert = "INSERT INTO items (nombre, descripcion, tipo, efecto_curacion, danio, activo) "
-                + "VALUES (?,?,?,?,?,?)";
+        String sqlInsert = "INSERT INTO items (nombre, descripcion, tipo, efecto_curacion, danio, capacidad_cargador, activo) "
+                + "VALUES (?,?,?,?,?,?,?)";
         String sqlGetId = "SELECT LAST_INSERT_ID()";
 
         try (Connection con = ConexionBD.conectar();
@@ -27,7 +31,8 @@ public class ItemDAO {
             psInsert.setString(3, item.getTipo().name());
             psInsert.setInt(4, item.getEfectoCuracion());
             psInsert.setInt(5, item.getDanio());
-            psInsert.setBoolean(6, item.isActivo());
+            psInsert.setInt(6, balasDe(item));
+            psInsert.setBoolean(7, item.isActivo());
 
             psInsert.executeUpdate();
 
@@ -54,8 +59,7 @@ public class ItemDAO {
 
     private List<Item> listarPorEstado(boolean activo) throws SQLException {
         List<Item> items = new ArrayList<>();
-        String sql = "SELECT id, nombre, descripcion, tipo, efecto_curacion, danio, activo "
-                + "FROM items WHERE activo = ? ORDER BY id";
+        String sql = SELECT + " WHERE activo = ? ORDER BY id";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -74,8 +78,7 @@ public class ItemDAO {
     // listar items por tipo (ARMA, ARMA_FUEGO, CONSUMIBLE, NOTA, LLAVE_MISION)
     public List<Item> listarPorTipo(TipoItem tipo) throws SQLException {
         List<Item> items = new ArrayList<>();
-        String sql = "SELECT id, nombre, descripcion, tipo, efecto_curacion, danio, activo "
-                + "FROM items WHERE tipo = ? AND activo = TRUE ORDER BY id";
+        String sql = SELECT + " WHERE tipo = ? AND activo = TRUE ORDER BY id";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -93,8 +96,7 @@ public class ItemDAO {
 
     // buscar item por ID
     public Item buscarPorId(int id) throws SQLException {
-        String sql = "SELECT id, nombre, descripcion, tipo, efecto_curacion, danio, activo "
-                + "FROM items WHERE id = ?";
+        String sql = SELECT + " WHERE id = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -112,8 +114,7 @@ public class ItemDAO {
 
     // buscar item por nombre (es UNIQUE en la BD)
     public Item buscarPorNombre(String nombre) throws SQLException {
-        String sql = "SELECT id, nombre, descripcion, tipo, efecto_curacion, danio, activo "
-                + "FROM items WHERE nombre = ?";
+        String sql = SELECT + " WHERE nombre = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -132,7 +133,7 @@ public class ItemDAO {
     // modificar item
     public boolean modificar(Item item) throws SQLException {
         String sql = "UPDATE items SET nombre = ?, descripcion = ?, tipo = ?, efecto_curacion = ?, "
-                + "danio = ?, activo = ? WHERE id = ?";
+                + "danio = ?, capacidad_cargador = ?, activo = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -142,8 +143,9 @@ public class ItemDAO {
             ps.setString(3, item.getTipo().name());
             ps.setInt(4, item.getEfectoCuracion());
             ps.setInt(5, item.getDanio());
-            ps.setBoolean(6, item.isActivo());
-            ps.setInt(7, item.getId());
+            ps.setInt(6, balasDe(item));
+            ps.setBoolean(7, item.isActivo());
+            ps.setInt(8, item.getId());
 
             return ps.executeUpdate() > 0;
         }
@@ -172,15 +174,28 @@ public class ItemDAO {
         }
     }
 
+    // valor que se guarda en capacidad_cargador: la capacidad si es arma de fuego, si no cantidadBalas
+    private int balasDe(Item item) {
+        if (item instanceof ArmaDeFuego af) {
+            return af.getCapacidadCargador();
+        }
+        return item.getCantidadBalas();
+    }
+
     private Item mapear(ResultSet rs) throws SQLException {
-        return new Item(
-                rs.getInt("id"),
-                rs.getString("nombre"),
-                rs.getString("descripcion"),
-                TipoItem.valueOf(rs.getString("tipo")),
-                rs.getInt("efecto_curacion"),
-                rs.getInt("danio"),
-                rs.getBoolean("activo")
-        );
+        int id = rs.getInt("id");
+        String nombre = rs.getString("nombre");
+        String descripcion = rs.getString("descripcion");
+        TipoItem tipo = TipoItem.valueOf(rs.getString("tipo"));
+        int curacion = rs.getInt("efecto_curacion");
+        int balas = rs.getInt("capacidad_cargador");
+        int danio = rs.getInt("danio");
+        boolean activo = rs.getBoolean("activo");
+
+        if (tipo == TipoItem.ARMA_FUEGO) {
+            // Cargador lleno y sin cajas; JugadorDAO restaura después la munición guardada del jugador
+            return new ArmaDeFuego(id, nombre, descripcion, danio, balas, balas, activo);
+        }
+        return new Item(id, nombre, descripcion, tipo, curacion, balas, danio, activo);
     }
 }

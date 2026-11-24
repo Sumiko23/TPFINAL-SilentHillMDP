@@ -22,6 +22,7 @@ public class JugadorDAO {
             "policia2_aparecio", "caja_sae_abierta",
             "banio_visitado", "abrir_cofre_ocurrido", "seguirla_ocurrida", "calle_ocurrida",
             "caja_fuerte_abierta", "sae_puerta_abierta", "segundo_piso_visitado",
+            "seguirla_fase_acido", "seguirla_fase_combate", "posta_ataque_sorpresa", "ascensor_en_combate",
             "cloaca_muerto", "policia1_muerto",
             "policia2_muerto", "acuatico_muerto", "lying_figure1_muerto", "policia3_muerto", "policia4_muerto",
             "lying_figure2_muerto", "cloaca2_muerto", "peluche_muerto", "timba_muerto", "lassie_muerto",
@@ -260,6 +261,11 @@ public class JugadorDAO {
         j.setSaePuertaAbierta(rs.getBoolean("sae_puerta_abierta"));
         j.setSegundoPisoVisitado(rs.getBoolean("segundo_piso_visitado"));
 
+        j.setSeguirlaFaseAcido(rs.getBoolean("seguirla_fase_acido"));
+        j.setSeguirlaFaseCombate(rs.getBoolean("seguirla_fase_combate"));
+        j.setPostaAtaqueSorpresa(rs.getBoolean("posta_ataque_sorpresa"));
+        j.setAscensorEnCombate(rs.getBoolean("ascensor_en_combate"));
+
         j.setCloacaMuerto(rs.getBoolean("cloaca_muerto"));
         j.setPolicia1Muerto(rs.getBoolean("policia1_muerto"));
         j.setPolicia2Muerto(rs.getBoolean("policia2_muerto"));
@@ -281,11 +287,11 @@ public class JugadorDAO {
 
         cargarInventario(con, j);
 
-        // Restaura la munición guardada en las armas de fuego del inventario
+        // Restaura las balas del cargador en las armas de fuego del inventario
+        // (las cajas quedan en j.cajasBalas, leídas de la columna cajas_balas)
         for (Item it : j.getInventario().getItems()) {
             if (it instanceof ArmaDeFuego af) {
                 af.setBalasCargador(j.getBalasCargador());
-                af.setCajasBalas(j.getCajasBalas());
             }
         }
 
@@ -318,7 +324,7 @@ public class JugadorDAO {
         else ps.setNull(i++, Types.INTEGER);
         ArmaDeFuego af = armaDeFuegoDe(j);
         ps.setInt(i++, af != null ? af.getBalasCargador() : j.getBalasCargador());
-        ps.setInt(i++, af != null ? af.getCajasBalas() : j.getCajasBalas());
+        ps.setInt(i++, j.getCajasBalas());
         ps.setBoolean(i++, j.isDeptoVisitado());
         ps.setBoolean(i++, j.isPrefecturaVisitada());
         ps.setBoolean(i++, j.isBarcoVisitado());
@@ -331,6 +337,10 @@ public class JugadorDAO {
         ps.setBoolean(i++, j.isCajaFuerteAbierta());
         ps.setBoolean(i++, j.isSaePuertaAbierta());
         ps.setBoolean(i++, j.isSegundoPisoVisitado());
+        ps.setBoolean(i++, j.isSeguirlaFaseAcido());
+        ps.setBoolean(i++, j.isSeguirlaFaseCombate());
+        ps.setBoolean(i++, j.isPostaAtaqueSorpresa());
+        ps.setBoolean(i++, j.isAscensorEnCombate());
         ps.setBoolean(i++, j.isCloacaMuerto());
         ps.setBoolean(i++, j.isPolicia1Muerto());
         ps.setBoolean(i++, j.isPolicia2Muerto());
@@ -346,8 +356,10 @@ public class JugadorDAO {
         ps.setBoolean(i++, j.isManiquiMuerto());
         ps.setBoolean(i++, j.isEstudianteMuerto());
         ps.setBoolean(i++, j.isRectorMuerto());
-        ps.setBoolean(i++, j.isActivo());
+        ps.setBoolean(i, j.isActivo());
     }
+
+    // El arma de fuego equipada, o la primera que tenga en el inventario
     private ArmaDeFuego armaDeFuegoDe(Jugador j) {
         if (j.getArmaEquipada() instanceof ArmaDeFuego af) return af;
         for (Item it : j.getInventario().getItems()) {
