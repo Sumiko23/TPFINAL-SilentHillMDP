@@ -3,7 +3,6 @@ package ClasesPOJO.Items;
 public class ArmaDeFuego extends Item {
     private int balasCargador;
     private int capacidadCargador;
-    private int cajasBalas;
 
     public ArmaDeFuego(int id, String nombre, String descripcion, int danio,
                        int balasCargador, int capacidadCargador, boolean activo) {
