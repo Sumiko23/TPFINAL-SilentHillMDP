@@ -94,20 +94,6 @@ public class EscenaService {
         return dao.buscarPorNombre(nombre);
     }
 
-    public Escena buscarPorIdMemoria(int id) {
-        for (Escena aux : lista.values()) {
-            if (aux.getId() == id) {
-                return aux;
-            }
-        }
-        return null;
-    }
-
-
-    public Escena buscarPorNombreMemoria(String nombre) {
-        return lista.get(nombre);
-    }
-
 
     public String mostrarListado() {
         if (lista.isEmpty()) {
