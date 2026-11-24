@@ -10,9 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class JugadorDAO {
 
@@ -193,19 +193,18 @@ public class JugadorDAO {
             del.executeUpdate();
         }
 
-        // cuenta cuántas veces aparece cada item (cantidad)
-        Map<Integer, Integer> cantidades = new LinkedHashMap<>();
+        // items únicos: si hubiera repetidos en memoria, se guarda uno solo
+        Set<Integer> ids = new LinkedHashSet<>();
         for (Item item : jugador.getInventario().getItems()) {
-            cantidades.merge(item.getId(), 1, Integer::sum);
+            ids.add(item.getId());
         }
-        if (cantidades.isEmpty()) return;
+        if (ids.isEmpty()) return;
 
-        String sql = "INSERT INTO jugador_inventario (jugador_id, item_id, cantidad) VALUES (?,?,?)";
+        String sql = "INSERT INTO jugador_inventario (jugador_id, item_id) VALUES (?,?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            for (Map.Entry<Integer, Integer> e : cantidades.entrySet()) {
+            for (int itemId : ids) {
                 ps.setInt(1, jugador.getId());
-                ps.setInt(2, e.getKey());
-                ps.setInt(3, e.getValue());
+                ps.setInt(2, itemId);
                 ps.addBatch();
             }
             ps.executeBatch();
@@ -213,23 +212,22 @@ public class JugadorDAO {
     }
 
     private void cargarInventario(Connection con, Jugador jugador) throws SQLException {
-        Map<Integer, Integer> cantidades = new LinkedHashMap<>();
-        String sql = "SELECT item_id, cantidad FROM jugador_inventario WHERE jugador_id = ? ORDER BY item_id";
+        List<Integer> ids = new ArrayList<>();
+        String sql = "SELECT item_id FROM jugador_inventario WHERE jugador_id = ? ORDER BY item_id";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, jugador.getId());
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    cantidades.put(rs.getInt("item_id"), rs.getInt("cantidad"));
+                    ids.add(rs.getInt("item_id"));
                 }
             }
         }
 
         // se agrega directo al inventario (no con registrarNuevoItem, para no sumar itemsObtenidos)
-        for (Map.Entry<Integer, Integer> e : cantidades.entrySet()) {
-            Item item = itemDAO.buscarPorId(e.getKey());
-            if (item == null) continue;
-            for (int i = 0; i < e.getValue(); i++) {
+        for (int itemId : ids) {
+            Item item = itemDAO.buscarPorId(itemId);
+            if (item != null) {
                 jugador.getInventario().agregarItem(item);
             }
         }

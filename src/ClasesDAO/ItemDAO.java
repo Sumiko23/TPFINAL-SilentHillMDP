@@ -14,11 +14,11 @@ import java.util.List;
 public class ItemDAO {
 
     private static final String SELECT =
-            "SELECT id, nombre, descripcion, tipo, efecto_curacion, capacidad_cargador, danio, activo FROM items";
+            "SELECT id, nombre, descripcion, tipo, efecto_curacion, cantidad_balas, danio, activo FROM items";
 
     // insertar item en la BD
     public int insertar(Item item) throws SQLException {
-        String sqlInsert = "INSERT INTO items (nombre, descripcion, tipo, efecto_curacion, danio, capacidad_cargador, activo) "
+        String sqlInsert = "INSERT INTO items (nombre, descripcion, tipo, efecto_curacion, danio, cantidad_balas, activo) "
                 + "VALUES (?,?,?,?,?,?,?)";
         String sqlGetId = "SELECT LAST_INSERT_ID()";
 
@@ -133,7 +133,7 @@ public class ItemDAO {
     // modificar item
     public boolean modificar(Item item) throws SQLException {
         String sql = "UPDATE items SET nombre = ?, descripcion = ?, tipo = ?, efecto_curacion = ?, "
-                + "danio = ?, capacidad_cargador = ?, activo = ? WHERE id = ?";
+                + "danio = ?, cantidad_balas = ?, activo = ? WHERE id = ?";
 
         try (Connection con = ConexionBD.conectar();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -174,7 +174,7 @@ public class ItemDAO {
         }
     }
 
-    // valor que se guarda en capacidad_cargador: la capacidad si es arma de fuego, si no cantidadBalas
+    // valor que se guarda en cantidad_balas: la capacidad si es arma de fuego, si no cantidadBalas
     private int balasDe(Item item) {
         if (item instanceof ArmaDeFuego af) {
             return af.getCapacidadCargador();
@@ -188,12 +188,12 @@ public class ItemDAO {
         String descripcion = rs.getString("descripcion");
         TipoItem tipo = TipoItem.valueOf(rs.getString("tipo"));
         int curacion = rs.getInt("efecto_curacion");
-        int balas = rs.getInt("capacidad_cargador");
+        int balas = rs.getInt("cantidad_balas");
         int danio = rs.getInt("danio");
         boolean activo = rs.getBoolean("activo");
 
         if (tipo == TipoItem.ARMA_FUEGO) {
-            // Cargador lleno y sin cajas; JugadorDAO restaura después la munición guardada del jugador
+            // Cargador lleno; JugadorDAO restaura después las balas guardadas del jugador
             return new ArmaDeFuego(id, nombre, descripcion, danio, balas, balas, activo);
         }
         return new Item(id, nombre, descripcion, tipo, curacion, balas, danio, activo);
